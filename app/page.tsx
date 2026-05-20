@@ -4,13 +4,16 @@ import { HowItWorks } from "@/components/home/how-it-works";
 import { Tiers } from "@/components/home/tiers";
 import { Categories } from "@/components/home/categories";
 import { CtaSection } from "@/components/home/cta-section";
+import { getProducts } from "@/lib/data/products";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const products = await getProducts(4);
+
   return (
     <>
       <Hero />
       <Categories />
-      <FeaturedProducts />
+      <FeaturedProducts products={products} />
       <HowItWorks />
       <Tiers />
       <CtaSection />
