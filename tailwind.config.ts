@@ -13,9 +13,9 @@ const config: Config = {
       colors: {
         primary: "#D58A1F",
         "primary-light": "#F5C842",
-        background: "#F8F7F4",
-        surface: "#EDECE7",
-        "surface-secondary": "#E4E3DC",
+        background: "#ECEAE4",
+        surface: "#E2E0D9",
+        "surface-secondary": "#D8D6CE",
         foreground: "#1A1A1A",
         muted: "#6B6B6B",
         danger: "#EF4444",

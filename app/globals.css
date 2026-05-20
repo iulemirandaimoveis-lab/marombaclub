@@ -3,9 +3,9 @@
 @theme {
   --color-primary: #D58A1F;
   --color-primary-light: #F5C842;
-  --color-background: #F8F7F4;
-  --color-surface: #EDECE7;
-  --color-surface-secondary: #E4E3DC;
+  --color-background: #ECEAE4;
+  --color-surface: #E2E0D9;
+  --color-surface-secondary: #D8D6CE;
   --color-foreground: #1A1A1A;
   --color-muted: #6B6B6B;
   --color-danger: #EF4444;
@@ -31,7 +31,7 @@
 
   --background-image-gradient-gold: linear-gradient(135deg, #D58A1F 0%, #F5C842 50%, #D58A1F 100%);
   --background-image-gradient-gold-dark: linear-gradient(135deg, #D58A1F 0%, #B8750F 100%);
-  --background-image-gradient-dark: linear-gradient(180deg, #F8F7F4 0%, #F0EFE9 50%, #F8F7F4 100%);
+  --background-image-gradient-dark: linear-gradient(180deg, #ECEAE4 0%, #E2E0D9 50%, #ECEAE4 100%);
   --background-image-gradient-surface: linear-gradient(135deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.01) 100%);
   --background-image-gradient-neon: linear-gradient(135deg, #D58A1F 0%, #F5C842 50%, #D58A1F 100%);
 
@@ -84,7 +84,7 @@
   }
 
   body {
-    background-color: #F8F7F4;
+    background-color: #ECEAE4;
     color: #1A1A1A;
     font-family: var(--font-inter), Inter, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -101,7 +101,7 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #EDECE7;
+    background: #E2E0D9;
   }
   ::-webkit-scrollbar-thumb {
     background: #C8C7C0;
