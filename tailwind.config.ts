@@ -11,32 +11,48 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#00FF66",
-        background: "#050505",
-        surface: "#111111",
-        "surface-secondary": "#1A1A1A",
+        primary: "#D58A1F",
+        "primary-light": "#F5C842",
+        background: "#0A0A0A",
+        surface: "#1A1A1A",
+        "surface-secondary": "#242424",
         foreground: "#F5F5F5",
-        muted: "#A3A3A3",
-        danger: "#FF3B30",
-        warning: "#FFB020",
-        border: "rgba(255,255,255,0.08)",
+        muted: "#A1A1A1",
+        danger: "#EF4444",
+        warning: "#F59E0B",
+        success: "#22C55E",
+        border: "rgba(213,138,31,0.12)",
       },
       fontFamily: {
+        display: ["var(--font-bebas)", "Anton", "Impact", "sans-serif"],
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       backgroundImage: {
-        "gradient-neon":
-          "linear-gradient(135deg, #00FF66 0%, #00CC52 50%, #009940 100%)",
+        "gradient-gold":
+          "linear-gradient(135deg, #D58A1F 0%, #F5C842 50%, #D58A1F 100%)",
+        "gradient-gold-dark":
+          "linear-gradient(135deg, #D58A1F 0%, #B8750F 100%)",
         "gradient-dark":
-          "linear-gradient(180deg, #050505 0%, #0a0a0a 50%, #050505 100%)",
+          "linear-gradient(180deg, #0A0A0A 0%, #111111 50%, #0A0A0A 100%)",
         "gradient-surface":
-          "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
+          "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)",
+        "gradient-neon":
+          "linear-gradient(135deg, #D58A1F 0%, #F5C842 50%, #D58A1F 100%)",
       },
       boxShadow: {
-        neon: "0 0 20px rgba(0, 255, 102, 0.4), 0 0 60px rgba(0, 255, 102, 0.1)",
-        "neon-sm": "0 0 10px rgba(0, 255, 102, 0.3)",
-        glass: "0 8px 32px rgba(0, 0, 0, 0.4)",
+        gold: "0 0 30px rgba(213,138,31,0.35), 0 0 60px rgba(213,138,31,0.1)",
+        "gold-sm": "0 0 15px rgba(213,138,31,0.25)",
+        neon: "0 0 30px rgba(213,138,31,0.35), 0 0 60px rgba(213,138,31,0.1)",
+        "neon-sm": "0 0 15px rgba(213,138,31,0.25)",
+        glass: "0 8px 32px rgba(0,0,0,0.5)",
         card: "0 4px 24px rgba(0,0,0,0.6)",
+        "card-hover": "0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(213,138,31,0.1)",
+      },
+      borderRadius: {
+        sm: "8px",
+        md: "14px",
+        lg: "20px",
+        xl: "28px",
       },
       animation: {
         "fade-in": "fadeIn 0.6s ease-out",
@@ -44,7 +60,7 @@ const config: Config = {
         "slide-down": "slideDown 0.3s ease-out",
         "scale-in": "scaleIn 0.4s ease-out",
         float: "float 3s ease-in-out infinite",
-        "pulse-neon": "pulseNeon 2s ease-in-out infinite",
+        "pulse-gold": "pulseGold 2s ease-in-out infinite",
         "spin-slow": "spin 8s linear infinite",
         shimmer: "shimmer 2s linear infinite",
       },
@@ -69,9 +85,9 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-12px)" },
         },
-        pulseNeon: {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(0, 255, 102, 0.4)" },
-          "50%": { boxShadow: "0 0 40px rgba(0, 255, 102, 0.8)" },
+        pulseGold: {
+          "0%, 100%": { boxShadow: "0 0 20px rgba(213,138,31,0.35)" },
+          "50%": { boxShadow: "0 0 50px rgba(213,138,31,0.7)" },
         },
         shimmer: {
           from: { backgroundPosition: "-200% 0" },

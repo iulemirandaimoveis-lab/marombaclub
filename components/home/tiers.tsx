@@ -68,8 +68,8 @@ export function Tiers() {
         <span className="text-primary text-sm font-bold uppercase tracking-widest">
           Níveis do clube
         </span>
-        <h2 className="text-3xl sm:text-4xl font-black text-foreground mt-2 mb-4">
-          Evolua de Bronze a Beast Mode
+        <h2 className="font-display text-4xl sm:text-5xl text-foreground mt-2 mb-4 tracking-wide">
+          EVOLUA DE BRONZE A BEAST MODE
         </h2>
         <p className="text-muted max-w-xl mx-auto">
           Quanto mais você compra, mais benefícios você desbloqueia. São 5 níveis

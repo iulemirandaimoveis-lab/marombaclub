@@ -9,6 +9,7 @@ import { z } from "zod";
 import { Mail, Lock, User, Eye, EyeOff, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { signIn, signUp } from "@/lib/supabase/auth";
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -29,6 +30,8 @@ type RegisterInput = z.infer<typeof registerSchema>;
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const isLogin = mode === "login";
   const schema = isLogin ? loginSchema : registerSchema;
@@ -39,9 +42,22 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
 
   const onSubmit = async (data: LoginInput | RegisterInput) => {
     setLoading(true);
-    // TODO: Supabase Auth integration
-    console.log("Auth:", data);
-    setLoading(false);
+    setError(null);
+    setSuccess(null);
+    try {
+      if (isLogin) {
+        await signIn(data.email, data.password);
+        window.location.href = "/";
+      } else {
+        const d = data as RegisterInput;
+        await signUp(d.email, d.password, d.name);
+        setSuccess("Conta criada! Verifique seu e-mail para confirmar o cadastro.");
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erro ao autenticar");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -144,6 +160,13 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
                   Esqueceu a senha?
                 </Link>
               </div>
+            )}
+
+            {error && (
+              <p className="text-danger text-sm bg-danger/10 border border-danger/20 rounded-xl px-4 py-3">{error}</p>
+            )}
+            {success && (
+              <p className="text-success text-sm bg-success/10 border border-success/20 rounded-xl px-4 py-3">{success}</p>
             )}
 
             <Button
