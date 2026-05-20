@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+import { CatalogView } from "@/components/catalog/catalog-view";
+
+export const metadata: Metadata = {
+  title: "Catálogo de Suplementos",
+  description:
+    "Explore nossa linha completa de suplementos premium. Whey protein, creatina, pré-treino, BCAA e muito mais.",
+};
+
 export default function CatalogPage() {
-  return <main style={{ padding: 24 }}><h1>Catálogo</h1><p>MVP: listagem virá via Supabase.</p></main>;
+  return <CatalogView />;
 }

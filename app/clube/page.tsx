@@ -1,3 +1,22 @@
+import type { Metadata } from "next";
+import { ClubHero } from "@/components/loyalty/club-hero";
+import { ClubTiers } from "@/components/loyalty/club-tiers";
+import { ClubRewards } from "@/components/loyalty/club-rewards";
+import { ClubHowToEarn } from "@/components/loyalty/club-how-to-earn";
+
+export const metadata: Metadata = {
+  title: "Maromba Club — Programa de Fidelidade",
+  description:
+    "Junte-se ao maior clube fitness do Brasil. Ganhe pontos, suba de nível e resgate recompensas exclusivas.",
+};
+
 export default function ClubPage() {
-  return <main style={{ padding: 24 }}><h1>Clube de Fidelidade</h1><p>Ledger de pontos com níveis Bronze, Silver, Gold, Black e Beast Mode.</p></main>;
+  return (
+    <>
+      <ClubHero />
+      <ClubHowToEarn />
+      <ClubTiers />
+      <ClubRewards />
+    </>
+  );
 }
