@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Mail, Lock, User, Eye, EyeOff, Zap } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signIn, signUp } from "@/lib/supabase/auth";
@@ -74,8 +75,15 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         <div className="glass-strong rounded-3xl p-8 border border-border shadow-card">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-neon">
-              <Zap className="w-7 h-7 text-background fill-background" />
+            <div className="flex justify-center mb-4">
+              <Image
+                src="/logo.png"
+                alt="Maromba Club"
+                width={200}
+                height={64}
+                className="h-16 w-auto"
+                priority
+              />
             </div>
             <h1 className="text-2xl font-black text-foreground">
               {isLogin ? "Bem-vindo de volta" : "Criar conta grátis"}
