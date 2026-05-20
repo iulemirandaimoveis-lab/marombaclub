@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
-import { ShoppingCart, User, Menu, X, Zap, Search } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/store/cart";
@@ -36,13 +37,15 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center group-hover:shadow-neon-sm transition-all duration-300">
-              <Zap className="w-4 h-4 text-background fill-background" />
-            </div>
-            <span className="font-black text-lg tracking-tight">
-              MAROMBA<span className="text-primary">CLUB</span>
-            </span>
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="/logo.png"
+              alt="Maromba Club"
+              width={160}
+              height={48}
+              className="h-10 w-auto object-contain transition-opacity duration-200 group-hover:opacity-80"
+              priority
+            />
           </Link>
 
           {/* Desktop nav */}
@@ -51,7 +54,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2 text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-white/5 rounded-lg transition-all duration-200"
+                className="px-4 py-2 text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-black/5 rounded-lg transition-all duration-200"
               >
                 {link.label}
               </Link>
@@ -68,7 +71,7 @@ export function Header() {
               <Button variant="ghost" size="icon" className="relative" aria-label="Carrinho">
                 <ShoppingCart className="w-4 h-4" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-background text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
@@ -108,7 +111,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-3 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-white/5 rounded-lg transition-all"
+                className="px-4 py-3 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-black/5 rounded-lg transition-all"
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}

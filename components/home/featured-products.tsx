@@ -180,7 +180,7 @@ function ProductCard({ product }: { product: (typeof MOCK_PRODUCTS)[0] }) {
                 className={`w-3 h-3 ${
                   i < Math.floor(product.rating)
                     ? "fill-primary text-primary"
-                    : "fill-white/10 text-white/10"
+                    : "fill-black/10 text-black/10"
                 }`}
               />
             ))}

@@ -21,7 +21,7 @@ const tiers = [
     min_points: 500,
     color: "from-slate-400/20 to-slate-500/10",
     border: "border-slate-400/30",
-    text: "text-slate-300",
+    text: "text-slate-600",
     perks: ["Tudo do Bronze", "Frete grátis em compras +R$ 200", "Acesso antecipado a promoções"],
   },
   {
@@ -38,9 +38,9 @@ const tiers = [
     name: "Black",
     emoji: "⚫",
     min_points: 4000,
-    color: "from-white/10 to-white/5",
-    border: "border-white/20",
-    text: "text-white",
+    color: "from-gray-700/10 to-gray-800/5",
+    border: "border-gray-400/30",
+    text: "text-gray-800",
     perks: ["Tudo do Gold", "2x pontos em compras", "Atendimento prioritário", "Brindes mensais"],
   },
   {
