@@ -1,0 +1,172 @@
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Mail, Lock, User, Eye, EyeOff, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+const loginSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(6, "Mínimo 6 caracteres"),
+});
+
+const registerSchema = loginSchema.extend({
+  name: z.string().min(2, "Nome obrigatório"),
+  password_confirm: z.string(),
+}).refine((d) => d.password === d.password_confirm, {
+  message: "As senhas não coincidem",
+  path: ["password_confirm"],
+});
+
+type LoginInput = z.infer<typeof loginSchema>;
+type RegisterInput = z.infer<typeof registerSchema>;
+
+export function AuthForm({ mode }: { mode: "login" | "register" }) {
+  const [showPwd, setShowPwd] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const isLogin = mode === "login";
+  const schema = isLogin ? loginSchema : registerSchema;
+
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginInput | RegisterInput>({
+    resolver: zodResolver(schema),
+  });
+
+  const onSubmit = async (data: LoginInput | RegisterInput) => {
+    setLoading(true);
+    // TODO: Supabase Auth integration
+    console.log("Auth:", data);
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 pt-16">
+      {/* Bg glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 32, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative w-full max-w-md"
+      >
+        <div className="glass-strong rounded-3xl p-8 border border-border shadow-card">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-neon">
+              <Zap className="w-7 h-7 text-background fill-background" />
+            </div>
+            <h1 className="text-2xl font-black text-foreground">
+              {isLogin ? "Bem-vindo de volta" : "Criar conta grátis"}
+            </h1>
+            <p className="text-muted text-sm mt-2">
+              {isLogin
+                ? "Entre na sua conta Maromba Club"
+                : "Junte-se ao maior clube fitness do Brasil"}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {!isLogin && (
+              <div>
+                <label className="text-xs text-muted mb-1.5 block">Nome completo</label>
+                <Input
+                  {...register("name" as keyof (LoginInput & RegisterInput))}
+                  icon={<User className="w-4 h-4" />}
+                  placeholder="Seu nome"
+                  className="h-11"
+                />
+                {(errors as { name?: { message?: string } }).name && (
+                  <p className="text-danger text-xs mt-1">{(errors as { name?: { message?: string } }).name?.message}</p>
+                )}
+              </div>
+            )}
+
+            <div>
+              <label className="text-xs text-muted mb-1.5 block">E-mail</label>
+              <Input
+                {...register("email")}
+                type="email"
+                icon={<Mail className="w-4 h-4" />}
+                placeholder="seu@email.com"
+                className="h-11"
+              />
+              {errors.email && <p className="text-danger text-xs mt-1">{errors.email.message}</p>}
+            </div>
+
+            <div>
+              <label className="text-xs text-muted mb-1.5 block">Senha</label>
+              <div className="relative">
+                <Input
+                  {...register("password")}
+                  type={showPwd ? "text" : "password"}
+                  icon={<Lock className="w-4 h-4" />}
+                  placeholder="••••••••"
+                  className="h-11 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd(!showPwd)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
+                >
+                  {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {errors.password && <p className="text-danger text-xs mt-1">{errors.password.message}</p>}
+            </div>
+
+            {!isLogin && (
+              <div>
+                <label className="text-xs text-muted mb-1.5 block">Confirmar senha</label>
+                <Input
+                  {...register("password_confirm" as keyof (LoginInput & RegisterInput))}
+                  type={showPwd ? "text" : "password"}
+                  icon={<Lock className="w-4 h-4" />}
+                  placeholder="••••••••"
+                  className="h-11"
+                />
+                {(errors as { password_confirm?: { message?: string } }).password_confirm && (
+                  <p className="text-danger text-xs mt-1">
+                    {(errors as { password_confirm?: { message?: string } }).password_confirm?.message}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {isLogin && (
+              <div className="flex justify-end">
+                <Link href="/esqueceu-senha" className="text-xs text-primary hover:underline">
+                  Esqueceu a senha?
+                </Link>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full font-black shadow-neon mt-2"
+              disabled={loading}
+            >
+              {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar conta"}
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-muted mt-6">
+            {isLogin ? "Não tem conta?" : "Já tem conta?"}{" "}
+            <Link
+              href={isLogin ? "/cadastro" : "/login"}
+              className="text-primary font-bold hover:underline"
+            >
+              {isLogin ? "Cadastre-se grátis" : "Entrar"}
+            </Link>
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
