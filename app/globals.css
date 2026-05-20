@@ -1,18 +1,80 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --font-inter: "Inter", system-ui, sans-serif;
-    --font-bebas: "Bebas Neue", sans-serif;
-    --primary: #D58A1F;
-    --primary-light: #F5C842;
-    --background: #0A0A0A;
-    --surface: #1A1A1A;
-    --foreground: #F5F5F5;
-    --muted: #A1A1A1;
-    --border: rgba(213, 138, 31, 0.12);
-  }
+@theme {
+  --color-primary: #D58A1F;
+  --color-primary-light: #F5C842;
+  --color-background: #0A0A0A;
+  --color-surface: #1A1A1A;
+  --color-surface-secondary: #242424;
+  --color-foreground: #F5F5F5;
+  --color-muted: #A1A1A1;
+  --color-danger: #EF4444;
+  --color-warning: #F59E0B;
+  --color-success: #22C55E;
+  --color-border: rgba(213, 138, 31, 0.12);
 
+  --font-display: var(--font-bebas), "Bebas Neue", Anton, Impact, sans-serif;
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+
+  --shadow-gold: 0 0 30px rgba(213,138,31,0.35), 0 0 60px rgba(213,138,31,0.1);
+  --shadow-gold-sm: 0 0 15px rgba(213,138,31,0.25);
+  --shadow-neon: 0 0 30px rgba(213,138,31,0.35), 0 0 60px rgba(213,138,31,0.1);
+  --shadow-neon-sm: 0 0 15px rgba(213,138,31,0.25);
+  --shadow-glass: 0 8px 32px rgba(0,0,0,0.5);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.6);
+  --shadow-card-hover: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(213,138,31,0.1);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --background-image-gradient-gold: linear-gradient(135deg, #D58A1F 0%, #F5C842 50%, #D58A1F 100%);
+  --background-image-gradient-gold-dark: linear-gradient(135deg, #D58A1F 0%, #B8750F 100%);
+  --background-image-gradient-dark: linear-gradient(180deg, #0A0A0A 0%, #111111 50%, #0A0A0A 100%);
+  --background-image-gradient-surface: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+  --background-image-gradient-neon: linear-gradient(135deg, #D58A1F 0%, #F5C842 50%, #D58A1F 100%);
+
+  --animate-fade-in: fadeIn 0.6s ease-out;
+  --animate-slide-up: slideUp 0.6s ease-out;
+  --animate-slide-down: slideDown 0.3s ease-out;
+  --animate-scale-in: scaleIn 0.4s ease-out;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-pulse-gold: pulseGold 2s ease-in-out infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 20px rgba(213,138,31,0.35); }
+  50% { box-shadow: 0 0 50px rgba(213,138,31,0.7); }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+@layer base {
   * {
     box-sizing: border-box;
   }
@@ -24,7 +86,7 @@
   body {
     background-color: #0A0A0A;
     color: #F5F5F5;
-    font-family: var(--font-inter);
+    font-family: var(--font-inter), Inter, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -50,7 +112,7 @@
   }
 
   h1, h2, h3 {
-    font-family: var(--font-bebas), "Anton", "Impact", sans-serif;
+    font-family: var(--font-bebas), "Bebas Neue", Anton, Impact, sans-serif;
     letter-spacing: 0.04em;
   }
 }
@@ -120,7 +182,7 @@
   }
 
   .font-display {
-    font-family: var(--font-bebas), "Anton", "Impact", sans-serif;
+    font-family: var(--font-bebas), "Bebas Neue", Anton, Impact, sans-serif;
     letter-spacing: 0.04em;
   }
 
@@ -128,17 +190,7 @@
     animation: float 3s ease-in-out infinite;
   }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-12px); }
-  }
-
   .animate-slide-down {
     animation: slideDown 0.3s ease-out;
-  }
-
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-12px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 }
