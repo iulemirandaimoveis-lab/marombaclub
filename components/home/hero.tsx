@@ -52,13 +52,13 @@ export function Hero() {
             {/* Heading */}
             <motion.h1
               variants={item}
-              className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[0.9] tracking-tight mb-6"
+              className="font-display leading-[0.9] tracking-wide mb-6"
             >
-              <span className="block text-foreground">MAROMBA</span>
-              <span className="block gradient-text">CLUB</span>
-              <span className="block text-foreground/90 text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">
+              <span className="block text-foreground text-6xl sm:text-7xl lg:text-8xl">MAROMBA</span>
+              <span className="block gradient-text text-6xl sm:text-7xl lg:text-8xl">CLUB</span>
+              <span className="block text-foreground/80 text-2xl sm:text-3xl lg:text-4xl font-sans font-semibold mt-3 tracking-normal">
                 Compre. Pontue.{" "}
-                <span className="text-primary">Evolua.</span>
+                <span className="text-primary font-bold">Evolua.</span>
               </span>
             </motion.h1>
 

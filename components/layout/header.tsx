@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { ShoppingCart, User, Menu, X, Zap, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCartStore } from "@/lib/store/cart";
 
 const navLinks = [
   { href: "/catalogo", label: "Catálogo" },
@@ -15,7 +16,7 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const cartCount = 0;
+  const cartCount = useCartStore((s) => s.item_count());
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);

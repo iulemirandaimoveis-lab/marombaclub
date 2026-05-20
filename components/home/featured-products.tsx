@@ -81,8 +81,8 @@ export function FeaturedProducts() {
           <span className="text-primary text-sm font-bold uppercase tracking-widest">
             Destaques
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-foreground mt-2">
-            Produtos em destaque
+          <h2 className="font-display text-4xl sm:text-5xl text-foreground mt-2 tracking-wide">
+            PRODUTOS EM DESTAQUE
           </h2>
           <p className="text-muted mt-2">
             Os favoritos da comunidade Maromba Club
