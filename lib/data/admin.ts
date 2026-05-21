@@ -1,9 +1,4 @@
-import { createAdminClient as _createAdminClient } from "@/lib/supabase/server";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function createAdminClient(): Promise<any> {
-  return _createAdminClient();
-}
+import { createClient } from "@/lib/supabase/server";
 
 export type AdminStats = {
   revenue_cents: number;
@@ -96,7 +91,7 @@ async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
 
 export async function getAdminStats(): Promise<AdminStats> {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -105,10 +100,7 @@ export async function getAdminStats(): Promise<AdminStats> {
         .from("orders")
         .select("total_cents")
         .eq("payment_status", "PAGO")
-        .gte(
-          "created_at",
-          new Date(today.getFullYear(), today.getMonth(), 1).toISOString()
-        ),
+        .gte("created_at", new Date(today.getFullYear(), today.getMonth(), 1).toISOString()),
       supabase
         .from("orders")
         .select("id", { count: "exact" })
@@ -121,10 +113,7 @@ export async function getAdminStats(): Promise<AdminStats> {
         .from("loyalty_points_ledger")
         .select("points")
         .in("entry_type", [
-          "CREDITO_COMPRA",
-          "CREDITO_CAMPANHA",
-          "CREDITO_INDICACAO",
-          "CREDITO_ANIVERSARIO",
+          "CREDITO_COMPRA", "CREDITO_CAMPANHA", "CREDITO_INDICACAO", "CREDITO_ANIVERSARIO", "earn",
         ]),
     ]);
 
@@ -157,12 +146,12 @@ export async function getAdminStats(): Promise<AdminStats> {
 
 export async function getAdminOrders(limit = 50): Promise<AdminOrder[]> {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("orders")
       .select(`
         id, total_cents, status, payment_status, created_at,
-        customer:profiles!orders_customer_id_fkey(id, name),
+        customer:profiles!orders_customer_id_fkey(id, name, email),
         items:order_items(id)
       `)
       .order("created_at", { ascending: false })
@@ -170,23 +159,11 @@ export async function getAdminOrders(limit = 50): Promise<AdminOrder[]> {
 
     if (error || !data) return [];
 
-    const userIds = [...new Set(data.map((o: any) => o.customer?.id).filter(Boolean))];
-    let emailMap: Record<string, string> = {};
-
-    if (userIds.length > 0) {
-      const { data: authData } = await supabase.auth.admin.listUsers();
-      if (authData?.users) {
-        emailMap = Object.fromEntries(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          authData.users.map((u: any) => [u.id, u.email ?? ""])
-        );
-      }
-    }
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((o: any) => ({
       id: o.id,
       customer_name: o.customer?.name ?? "Cliente",
-      customer_email: emailMap[o.customer?.id] ?? "",
+      customer_email: o.customer?.email ?? "",
       total_cents: o.total_cents,
       status: o.status,
       payment_status: o.payment_status,
@@ -198,7 +175,7 @@ export async function getAdminOrders(limit = 50): Promise<AdminOrder[]> {
 
 export async function getAdminProducts(): Promise<AdminProduct[]> {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("products")
       .select(`
@@ -211,6 +188,7 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
 
     if (error || !data) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((p: any) => ({
       id: p.id,
       name: p.name,
@@ -223,6 +201,7 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
       image_url: p.image_url,
       category: p.category,
       total_inventory:
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         p.inventory?.reduce((s: number, i: any) => s + i.quantity, 0) ?? 0,
     }));
   }, []);
@@ -230,7 +209,7 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
 
 export async function getInventory(): Promise<InventoryItem[]> {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("inventory")
       .select(`
@@ -242,6 +221,7 @@ export async function getInventory(): Promise<InventoryItem[]> {
 
     if (error || !data) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((i: any) => ({
       id: i.id,
       store_id: i.store_id,
@@ -258,7 +238,7 @@ export async function getInventory(): Promise<InventoryItem[]> {
 
 export async function getInventoryMovements(limit = 100): Promise<InventoryMovement[]> {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("inventory_movements")
       .select(`
@@ -272,6 +252,7 @@ export async function getInventoryMovements(limit = 100): Promise<InventoryMovem
 
     if (error || !data) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((m: any) => ({
       id: m.id,
       product_name: m.product?.name ?? "Produto",
@@ -287,11 +268,11 @@ export async function getInventoryMovements(limit = 100): Promise<InventoryMovem
 
 export async function getAdminCustomers(): Promise<AdminCustomer[]> {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const { data: profiles, error } = await supabase
       .from("profiles")
       .select(`
-        id, name, phone, role, created_at,
+        id, name, email, phone, role, created_at,
         orders(total_cents, payment_status),
         loyalty_accounts(total_points, tier)
       `)
@@ -300,25 +281,19 @@ export async function getAdminCustomers(): Promise<AdminCustomer[]> {
 
     if (error || !profiles) return [];
 
-    const { data: authData } = await supabase.auth.admin.listUsers();
-    const emailMap: Record<string, string> = {};
-    if (authData?.users) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      authData.users.forEach((u: any) => {
-        emailMap[u.id] = u.email ?? "";
-      });
-    }
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return profiles.map((p: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const paidOrders = p.orders?.filter((o: any) => o.payment_status === "PAGO") ?? [];
       return {
         id: p.id,
         name: p.name,
-        email: emailMap[p.id] ?? "",
+        email: p.email ?? "",
         phone: p.phone,
         role: p.role,
         created_at: p.created_at,
         total_orders: paidOrders.length,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         total_spent_cents: paidOrders.reduce((s: number, o: any) => s + o.total_cents, 0),
         loyalty_tier: p.loyalty_accounts?.[0]?.tier ?? null,
         total_points: p.loyalty_accounts?.[0]?.total_points ?? 0,
@@ -329,17 +304,15 @@ export async function getAdminCustomers(): Promise<AdminCustomer[]> {
 
 export async function getStores(): Promise<Store[]> {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("stores")
-      .select(`
-        id, name, address, phone, is_active, created_at,
-        inventory(id)
-      `)
+      .select(`id, name, address, phone, is_active, created_at, inventory(id)`)
       .order("name");
 
     if (error || !data) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((s: any) => ({
       id: s.id,
       name: s.name,
@@ -354,12 +327,9 @@ export async function getStores(): Promise<Store[]> {
 
 export async function getAdminLoyalty() {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const [accountsRes, ledgerRes, rewardsRes, redemptionsRes] = await Promise.all([
-      supabase
-        .from("loyalty_accounts")
-        .select("tier")
-        .order("total_points", { ascending: false }),
+      supabase.from("loyalty_accounts").select("tier").order("total_points", { ascending: false }),
       supabase
         .from("loyalty_points_ledger")
         .select("entry_type, points")
@@ -373,20 +343,24 @@ export async function getAdminLoyalty() {
     ]);
 
     const tierCounts: Record<string, number> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     accountsRes.data?.forEach((a: any) => {
       tierCounts[a.tier] = (tierCounts[a.tier] ?? 0) + 1;
     });
 
     const pointsIssued =
       ledgerRes.data
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ?.filter((e: any) => e.points > 0)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .reduce((s: number, e: any) => s + e.points, 0) ?? 0;
-    const pointsRedeemed =
-      Math.abs(
-        ledgerRes.data
-          ?.filter((e: any) => e.points < 0)
-          .reduce((s: number, e: any) => s + e.points, 0) ?? 0
-      );
+    const pointsRedeemed = Math.abs(
+      ledgerRes.data
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ?.filter((e: any) => e.points < 0)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .reduce((s: number, e: any) => s + e.points, 0) ?? 0
+    );
 
     return {
       tier_counts: tierCounts,
@@ -408,13 +382,9 @@ export async function getAdminLoyalty() {
 
 export async function getLoyaltyAccount(userId: string) {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const [accountRes, ledgerRes, rewardsRes] = await Promise.all([
-      supabase
-        .from("loyalty_accounts")
-        .select("*")
-        .eq("customer_id", userId)
-        .single(),
+      supabase.from("loyalty_accounts").select("*").eq("customer_id", userId).single(),
       supabase
         .from("loyalty_points_ledger")
         .select("*")
@@ -434,7 +404,7 @@ export async function getLoyaltyAccount(userId: string) {
 
 export async function getCustomerOrders(userId: string) {
   return safeQuery(async () => {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("orders")
       .select(`

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 
 const orderSchema = z.object({
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const { items, delivery_type, delivery_address, coupon_code, points_to_redeem = 0, store_id } = parsed.data;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const admin = await createAdminClient() as any;
+    const admin = supabase as any;
 
     // Verify products and prices server-side (never trust client prices)
     const productIds = items.map((i) => i.product_id);
