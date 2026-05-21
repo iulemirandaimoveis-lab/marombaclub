@@ -18,6 +18,25 @@ export type Product = {
   category: { name: string; slug: string; icon: string | null } | null;
 };
 
+export async function getProduct(slug: string): Promise<Product | null> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return null;
+  }
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*, category:product_categories(name, slug, icon)")
+      .eq("slug", slug)
+      .eq("is_active", true)
+      .single();
+    if (error || !data) return null;
+    return data as unknown as Product;
+  } catch {
+    return null;
+  }
+}
+
 export async function getProducts(limit?: number, categorySlug?: string): Promise<Product[]> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return [];
