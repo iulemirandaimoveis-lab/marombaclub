@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Zap, Camera, Play, MessageCircle } from "lucide-react";
+import Image from "next/image";
+import { Camera, Play, MessageCircle } from "lucide-react";
 
 const footerLinks = {
   loja: [
@@ -29,13 +30,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-neon-sm">
-                <Zap className="w-5 h-5 text-background fill-background" />
-              </div>
-              <span className="font-black text-xl tracking-tight">
-                MAROMBA<span className="text-primary">CLUB</span>
-              </span>
+            <Link href="/" className="inline-block mb-4">
+              <Image src="/logo.png" alt="Maromba Club" width={160} height={48} className="h-10 w-auto object-contain" />
             </Link>
             <p className="text-muted text-sm leading-relaxed max-w-xs">
               O clube onde cada compra vira evolução. Suplementos premium, fidelidade
