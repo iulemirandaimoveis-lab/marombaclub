@@ -19,9 +19,6 @@ export type Product = {
 };
 
 export async function getProduct(slug: string): Promise<Product | null> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return null;
-  }
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -38,9 +35,6 @@ export async function getProduct(slug: string): Promise<Product | null> {
 }
 
 export async function getProducts(limit?: number, categorySlug?: string): Promise<Product[]> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return [];
-  }
   try {
     const supabase = await createClient();
     let query = supabase
