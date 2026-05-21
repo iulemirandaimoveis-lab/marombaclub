@@ -82,7 +82,6 @@ export type Store = {
 
 async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return fallback;
     return await fn();
   } catch {
     return fallback;

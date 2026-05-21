@@ -29,8 +29,6 @@ type AuditLog = {
 
 async function getAuditLogs(): Promise<AuditLog[]> {
   try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
-
     const supabase = await createAdminClient();
 
     const { data, error } = await supabase

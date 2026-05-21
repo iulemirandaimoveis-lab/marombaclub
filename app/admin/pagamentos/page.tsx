@@ -39,10 +39,6 @@ async function getPaymentData(): Promise<{
   stats: PaymentStats;
 }> {
   try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      return { events: [], stats: { pago: 0, pendente: 0, recusado: 0, estornado: 0 } };
-    }
-
     const supabase = await createAdminClient();
 
     const [eventsRes, statsRes] = await Promise.all([
