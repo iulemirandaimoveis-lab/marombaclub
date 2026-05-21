@@ -78,6 +78,7 @@ export interface Database {
           sku: string | null;
           description: string | null;
           price_cents: number;
+          old_price_cents: number | null;
           cost_cents: number | null;
           flavor: string | null;
           weight_volume: string | null;
@@ -85,6 +86,8 @@ export interface Database {
           is_active: boolean;
           is_club_exclusive: boolean;
           image_url: string | null;
+          emoji: string | null;
+          points_per_unit: number;
           nutritional_info: Json | null;
           created_at: string;
           updated_at: string;
@@ -99,6 +102,7 @@ export interface Database {
           sku?: string | null;
           description?: string | null;
           price_cents: number;
+          old_price_cents?: number | null;
           cost_cents?: number | null;
           flavor?: string | null;
           weight_volume?: string | null;
@@ -106,6 +110,8 @@ export interface Database {
           is_active?: boolean;
           is_club_exclusive?: boolean;
           image_url?: string | null;
+          emoji?: string | null;
+          points_per_unit?: number;
           nutritional_info?: Json | null;
           created_at?: string;
           updated_at?: string;
@@ -120,6 +126,7 @@ export interface Database {
           sku?: string | null;
           description?: string | null;
           price_cents?: number;
+          old_price_cents?: number | null;
           cost_cents?: number | null;
           flavor?: string | null;
           weight_volume?: string | null;
@@ -127,6 +134,8 @@ export interface Database {
           is_active?: boolean;
           is_club_exclusive?: boolean;
           image_url?: string | null;
+          emoji?: string | null;
+          points_per_unit?: number;
           nutritional_info?: Json | null;
           created_at?: string;
           updated_at?: string;
@@ -280,7 +289,7 @@ export interface Database {
       orders: {
         Row: {
           id: string;
-          customer_id: string;
+          customer_id: string | null;
           store_id: string | null;
           status: string;
           payment_status: string;
@@ -294,12 +303,16 @@ export interface Database {
           coupon_code: string | null;
           delivery_address: Json | null;
           pagbank_order_id: string | null;
+          payment_method: string | null;
+          payment_id: string | null;
+          shipping_address: Json | null;
+          notes: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
-          customer_id: string;
+          customer_id?: string | null;
           store_id?: string | null;
           status?: string;
           payment_status?: string;
@@ -313,12 +326,16 @@ export interface Database {
           coupon_code?: string | null;
           delivery_address?: Json | null;
           pagbank_order_id?: string | null;
+          payment_method?: string | null;
+          payment_id?: string | null;
+          shipping_address?: Json | null;
+          notes?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          customer_id?: string;
+          customer_id?: string | null;
           store_id?: string | null;
           status?: string;
           payment_status?: string;
@@ -332,6 +349,10 @@ export interface Database {
           coupon_code?: string | null;
           delivery_address?: Json | null;
           pagbank_order_id?: string | null;
+          payment_method?: string | null;
+          payment_id?: string | null;
+          shipping_address?: Json | null;
+          notes?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -344,6 +365,8 @@ export interface Database {
           quantity: number;
           unit_price_cents: number;
           total_cents: number;
+          flavor: string | null;
+          created_at: string;
         };
         Insert: {
           id?: string;
@@ -352,6 +375,8 @@ export interface Database {
           quantity: number;
           unit_price_cents: number;
           total_cents: number;
+          flavor?: string | null;
+          created_at?: string;
         };
         Update: {
           id?: string;
@@ -360,32 +385,46 @@ export interface Database {
           quantity?: number;
           unit_price_cents?: number;
           total_cents?: number;
+          flavor?: string | null;
+          created_at?: string;
         };
       };
       payment_events: {
         Row: {
           id: string;
-          order_id: string;
-          event_id: string;
+          provider: string;
+          provider_id: string | null;
+          order_id: string | null;
           event_type: string;
-          payload: Json;
-          processed_at: string;
+          status: string | null;
+          amount_cents: number | null;
+          raw_payload: Json | null;
+          processed_at: string | null;
+          created_at: string;
         };
         Insert: {
           id?: string;
-          order_id: string;
-          event_id: string;
+          provider?: string;
+          provider_id?: string | null;
+          order_id?: string | null;
           event_type: string;
-          payload: Json;
-          processed_at?: string;
+          status?: string | null;
+          amount_cents?: number | null;
+          raw_payload?: Json | null;
+          processed_at?: string | null;
+          created_at?: string;
         };
         Update: {
           id?: string;
-          order_id?: string;
-          event_id?: string;
+          provider?: string;
+          provider_id?: string | null;
+          order_id?: string | null;
           event_type?: string;
-          payload?: Json;
-          processed_at?: string;
+          status?: string | null;
+          amount_cents?: number | null;
+          raw_payload?: Json | null;
+          processed_at?: string | null;
+          created_at?: string;
         };
       };
       loyalty_accounts: {
@@ -415,6 +454,32 @@ export interface Database {
           tier?: string;
           created_at?: string;
           updated_at?: string;
+        };
+      };
+      loyalty_tiers: {
+        Row: {
+          id: string;
+          name: string;
+          min_points: number;
+          multiplier: number;
+          perks: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          min_points: number;
+          multiplier?: number;
+          perks?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          min_points?: number;
+          multiplier?: number;
+          perks?: Json | null;
+          created_at?: string;
         };
       };
       loyalty_points_ledger: {
