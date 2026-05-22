@@ -1,17 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Gift, Zap, Truck, Package, Star } from "lucide-react";
+import { Zap, Truck, Dumbbell, Shirt, Package, Crown, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const REWARDS = [
-  { icon: "💰", name: "R$ 20 de desconto", pts: 200, type: "Desconto", color: "from-green-500/20 to-green-600/10", border: "border-green-500/20" },
-  { icon: "🚀", name: "Frete grátis", pts: 100, type: "Frete", color: "from-blue-500/20 to-blue-600/10", border: "border-blue-500/20" },
-  { icon: "💪", name: "Coqueteleira Beast", pts: 500, type: "Produto", color: "from-primary/20 to-primary/10", border: "border-primary/20" },
-  { icon: "👕", name: "Camiseta Maromba Club", pts: 800, type: "Produto", color: "from-primary/20 to-primary/10", border: "border-primary/20" },
-  { icon: "🧪", name: "Sample Pack Premium", pts: 300, type: "Produto", color: "from-purple-500/20 to-purple-600/10", border: "border-purple-500/20" },
-  { icon: "👑", name: "Kit Beast Mode", pts: 2000, type: "Kit VIP", color: "from-warning/20 to-warning/10", border: "border-warning/20" },
+  { Icon: Percent, name: "R$ 20 de desconto", pts: 200, type: "Desconto", color: "from-green-500/20 to-green-600/10", border: "border-green-500/20", iconColor: "text-green-500" },
+  { Icon: Truck, name: "Frete grátis", pts: 100, type: "Frete", color: "from-blue-500/20 to-blue-600/10", border: "border-blue-500/20", iconColor: "text-blue-500" },
+  { Icon: Dumbbell, name: "Coqueteleira Beast", pts: 500, type: "Produto", color: "from-primary/20 to-primary/10", border: "border-primary/20", iconColor: "text-primary" },
+  { Icon: Shirt, name: "Camiseta Maromba Club", pts: 800, type: "Produto", color: "from-primary/20 to-primary/10", border: "border-primary/20", iconColor: "text-primary" },
+  { Icon: Package, name: "Sample Pack Premium", pts: 300, type: "Produto", color: "from-purple-500/20 to-purple-600/10", border: "border-purple-500/20", iconColor: "text-purple-500" },
+  { Icon: Crown, name: "Kit Beast Mode", pts: 2000, type: "Kit VIP", color: "from-warning/20 to-warning/10", border: "border-warning/20", iconColor: "text-warning" },
 ];
 
 export function ClubRewards() {
@@ -41,8 +41,8 @@ export function ClubRewards() {
               transition={{ duration: 0.4, delay: i * 0.07 }}
               className={`group glass rounded-2xl p-6 border ${reward.border} card-hover`}
             >
-              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${reward.color} flex items-center justify-center text-2xl mb-5 transition-transform duration-300 group-hover:scale-110`}>
-                {reward.icon}
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${reward.color} flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110`}>
+                <reward.Icon className={`w-6 h-6 ${reward.iconColor}`} />
               </div>
               <div className="flex items-start justify-between mb-4">
                 <div>

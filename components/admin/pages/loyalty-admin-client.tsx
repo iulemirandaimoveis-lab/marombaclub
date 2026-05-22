@@ -1,11 +1,11 @@
 "use client";
 
+import type React from "react";
 import { motion } from "framer-motion";
 import {
   Trophy,
   Zap,
   TrendingUp,
-  TrendingDown,
   Gift,
   RotateCcw,
   Users,
@@ -13,6 +13,8 @@ import {
   CheckCircle,
   Clock,
   XCircle,
+  Shield,
+  Flame,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,42 +35,42 @@ interface AdminLoyaltyClientProps {
 
 const TIER_CONFIG: Record<
   string,
-  { label: string; color: string; bg: string; border: string; icon: string }
+  { label: string; color: string; bg: string; border: string; Icon: React.ElementType }
 > = {
   BRONZE: {
     label: "Bronze",
     color: "text-amber-600",
     bg: "bg-amber-600/10",
     border: "border-amber-600/30",
-    icon: "🥉",
+    Icon: Trophy,
   },
   SILVER: {
     label: "Prata",
     color: "text-slate-400",
     bg: "bg-slate-400/10",
     border: "border-slate-400/30",
-    icon: "🥈",
+    Icon: Star,
   },
   GOLD: {
     label: "Ouro",
     color: "text-primary",
     bg: "bg-primary/10",
     border: "border-primary/30",
-    icon: "🥇",
+    Icon: Star,
   },
   BLACK: {
     label: "Black",
     color: "text-foreground",
     bg: "bg-white/8",
     border: "border-white/20",
-    icon: "⚫",
+    Icon: Shield,
   },
   BEAST: {
     label: "Beast Mode",
     color: "text-danger",
     bg: "bg-danger/10",
     border: "border-danger/30",
-    icon: "💀",
+    Icon: Flame,
   },
 };
 
@@ -240,7 +242,7 @@ export function AdminLoyaltyClient({ data }: AdminLoyaltyClientProps) {
                       >
                         <div className="flex items-center justify-between text-sm">
                           <span className="flex items-center gap-2">
-                            <span>{cfg.icon}</span>
+                            <cfg.Icon className={`w-3.5 h-3.5 ${cfg.color}`} />
                             <span className={`font-semibold ${cfg.color}`}>
                               {cfg.label}
                             </span>

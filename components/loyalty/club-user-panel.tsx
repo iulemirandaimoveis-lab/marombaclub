@@ -5,12 +5,12 @@ import { Zap, Trophy, Gift, ChevronRight, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const TIER_CONFIG: Record<string, { label: string; emoji: string; color: string; next: number | null }> = {
-  BRONZE: { label: "Bronze", emoji: "🥉", color: "text-amber-600", next: 500 },
-  SILVER: { label: "Prata", emoji: "🥈", color: "text-gray-400", next: 1500 },
-  GOLD: { label: "Ouro", emoji: "🥇", color: "text-primary", next: 4000 },
-  BLACK: { label: "Black", emoji: "⚫", color: "text-foreground", next: 8000 },
-  BEAST_MODE: { label: "Beast Mode", emoji: "💪", color: "text-danger", next: null },
+const TIER_CONFIG: Record<string, { label: string; color: string; next: number | null }> = {
+  BRONZE: { label: "Bronze", color: "text-amber-600", next: 500 },
+  SILVER: { label: "Prata", color: "text-gray-400", next: 1500 },
+  GOLD: { label: "Ouro", color: "text-primary", next: 4000 },
+  BLACK: { label: "Black", color: "text-foreground", next: 8000 },
+  BEAST_MODE: { label: "Beast Mode", color: "text-danger", next: null },
 };
 
 type Props = {
@@ -43,7 +43,9 @@ export function ClubUserPanel({ loyalty }: Props) {
             {/* Points */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <span className={`text-2xl`}>{tierConfig.emoji}</span>
+                <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                  <Trophy className="w-4 h-4 text-primary" />
+                </div>
                 <div>
                   <p className="text-xs text-muted font-bold uppercase tracking-wider">Seu saldo</p>
                   <p className={`text-xs font-bold ${tierConfig.color}`}>{tierConfig.label}</p>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -78,15 +79,14 @@ export function AdminSidebar({ mobileOpen, onMobileClose }: AdminSidebarProps) {
     >
       {/* Logo */}
       <div className="h-14 flex items-center justify-between px-4 border-b border-border flex-shrink-0">
-        {!collapsed && (
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-              <Zap className="w-3.5 h-3.5 text-background fill-background" />
-            </div>
-            <span className="font-black text-sm truncate">
-              MAROMBA<span className="text-primary">CLUB</span>
-            </span>
-          </div>
+        {!collapsed ? (
+          <Link href="/" className="min-w-0">
+            <Image src="/logo.png" alt="Maromba Club" width={160} height={48} className="h-7 w-auto object-contain" />
+          </Link>
+        ) : (
+          <Link href="/">
+            <Image src="/logo-mb.png" alt="MB" width={32} height={32} className="w-7 h-7 object-contain" />
+          </Link>
         )}
         {/* Desktop collapse toggle */}
         <button

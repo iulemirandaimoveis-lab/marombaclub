@@ -24,7 +24,7 @@ const config: Config = {
         border: "rgba(213,138,31,0.20)",
       },
       fontFamily: {
-        display: ["var(--font-bebas)", "Anton", "Impact", "sans-serif"],
+        display: ["var(--font-anton)", "Anton", "Impact", "sans-serif"],
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       backgroundImage: {

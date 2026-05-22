@@ -2,16 +2,17 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { Dumbbell, Zap, Flame, FlaskConical, Leaf, Activity, Scale, Apple } from "lucide-react";
 
 const categories = [
-  { label: "Proteínas", emoji: "💪", slug: "proteinas", count: 48 },
-  { label: "Creatina", emoji: "⚡", slug: "creatina", count: 12 },
-  { label: "Pré-treino", emoji: "🔥", slug: "pre-treino", count: 24 },
-  { label: "Aminoácidos", emoji: "🧬", slug: "aminoacidos", count: 18 },
-  { label: "Vitaminas", emoji: "🌿", slug: "vitaminas", count: 36 },
-  { label: "Queimadores", emoji: "🏃", slug: "queimadores", count: 15 },
-  { label: "Hipercalórico", emoji: "🍫", slug: "hipercalorico", count: 9 },
-  { label: "Snacks Fit", emoji: "🥜", slug: "snacks", count: 21 },
+  { label: "Proteínas", icon: Dumbbell, slug: "proteinas", count: 48 },
+  { label: "Creatina", icon: Zap, slug: "creatina", count: 12 },
+  { label: "Pré-treino", icon: Flame, slug: "pre-treino", count: 24 },
+  { label: "Aminoácidos", icon: FlaskConical, slug: "aminoacidos", count: 18 },
+  { label: "Vitaminas", icon: Leaf, slug: "vitaminas", count: 36 },
+  { label: "Queimadores", icon: Activity, slug: "queimadores", count: 15 },
+  { label: "Hipercalórico", icon: Scale, slug: "hipercalorico", count: 9 },
+  { label: "Snacks Fit", icon: Apple, slug: "snacks", count: 21 },
 ];
 
 export function Categories() {
@@ -28,30 +29,33 @@ export function Categories() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-          {categories.map((cat, i) => (
-            <motion.div
-              key={cat.slug}
-              initial={{ opacity: 0, scale: 0.85 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
-            >
-              <Link
-                href={`/catalogo?category=${cat.slug}`}
-                className="group flex flex-col items-center gap-3 p-4 glass-strong rounded-2xl border border-transparent hover:border-primary/25 hover:bg-primary/5 transition-all duration-300"
+          {categories.map((cat, i) => {
+            const Icon = cat.icon;
+            return (
+              <motion.div
+                key={cat.slug}
+                initial={{ opacity: 0, scale: 0.85 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
               >
-                <span className="text-3xl transition-transform duration-300 group-hover:scale-125">
-                  {cat.emoji}
-                </span>
-                <div className="text-center">
-                  <p className="text-xs font-bold text-foreground/80 group-hover:text-primary transition-colors">
-                    {cat.label}
-                  </p>
-                  <p className="text-[10px] text-muted mt-0.5">{cat.count} produtos</p>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                <Link
+                  href={`/catalogo?category=${cat.slug}`}
+                  className="group flex flex-col items-center gap-3 p-4 glass-strong rounded-2xl border border-transparent hover:border-primary/25 hover:bg-primary/5 transition-all duration-300"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <Icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-foreground/80 group-hover:text-primary transition-colors">
+                      {cat.label}
+                    </p>
+                    <p className="text-[10px] text-muted mt-0.5">{cat.count} produtos</p>
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

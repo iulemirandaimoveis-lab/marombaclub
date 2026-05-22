@@ -59,7 +59,7 @@ export function ProductView({ product }: { product: Product }) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-[120px]">{product.emoji ?? "📦"}</span>
+                <Package className="w-32 h-32 text-muted/30" />
               )}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
                 {discount && (

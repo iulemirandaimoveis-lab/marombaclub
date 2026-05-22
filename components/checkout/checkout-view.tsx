@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   MapPin, CreditCard, Zap, Shield, ChevronRight, Store,
-  CheckCircle, Package, Truck, AlertCircle, Phone,
+  CheckCircle, Package, Truck, AlertCircle, Phone, QrCode, FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -326,9 +326,9 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
 
                     <div className="grid grid-cols-3 gap-3">
                       {[
-                        { id: "pix", label: "PIX", emoji: "🔑", desc: "Aprovação instantânea" },
-                        { id: "credit", label: "Crédito", emoji: "💳", desc: "Até 12x sem juros" },
-                        { id: "boleto", label: "Boleto", emoji: "📄", desc: "Vence em 3 dias" },
+                        { id: "pix", label: "PIX", Icon: QrCode, desc: "Aprovação instantânea" },
+                        { id: "credit", label: "Crédito", Icon: CreditCard, desc: "Até 12x sem juros" },
+                        { id: "boleto", label: "Boleto", Icon: FileText, desc: "Vence em 3 dias" },
                       ].map((method) => (
                         <button
                           key={method.id}
@@ -340,7 +340,9 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
                               : "border-border hover:border-primary/40"
                           }`}
                         >
-                          <div className="text-2xl mb-1">{method.emoji}</div>
+                          <div className="flex justify-center mb-1">
+                            <method.Icon className={`w-6 h-6 ${paymentMethod === method.id ? "text-primary" : "text-muted"}`} />
+                          </div>
                           <p className={`font-bold text-xs ${paymentMethod === method.id ? "text-primary" : "text-foreground"}`}>
                             {method.label}
                           </p>
@@ -376,8 +378,8 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
                           className="flex items-center justify-between py-2 border-b border-border last:border-0"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center text-lg">
-                              💪
+                            <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center">
+                              <Package className="w-5 h-5 text-muted/50" />
                             </div>
                             <div>
                               <p className="text-sm font-bold text-foreground">{item.name}</p>
@@ -469,8 +471,8 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
               <h3 className="font-bold text-foreground">Resumo do pedido</h3>
               {items.slice(0, 4).map((item) => (
                 <div key={item.id} className="flex gap-3 items-center">
-                  <div className="w-12 h-12 rounded-xl bg-surface-secondary flex items-center justify-center text-xl flex-shrink-0">
-                    💪
+                  <div className="w-12 h-12 rounded-xl bg-surface-secondary flex items-center justify-center flex-shrink-0">
+                    <Package className="w-6 h-6 text-muted/40" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground line-clamp-1">{item.name}</p>
