@@ -19,9 +19,10 @@ import {
   Zap,
   ChevronLeft,
   Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -39,44 +40,72 @@ const NAV = [
   { href: "/admin/auditoria", label: "Auditoria", icon: Shield },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+}
+
+export function AdminSidebar({ mobileOpen, onMobileClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+
+  // Close drawer on route change (mobile)
+  useEffect(() => {
+    onMobileClose();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  // Close drawer on Escape key
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onMobileClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onMobileClose]);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
   };
 
-  return (
+  const sidebarContent = (
     <aside
       className={cn(
-        "bg-surface border-r border-border flex flex-col transition-all duration-300 sticky top-0 h-screen z-40",
+        "bg-surface border-r border-border flex flex-col transition-all duration-300 h-full",
         collapsed ? "w-[60px]" : "w-64"
       )}
     >
       {/* Logo */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+      <div className="h-14 flex items-center justify-between px-4 border-b border-border flex-shrink-0">
         {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
               <Zap className="w-3.5 h-3.5 text-background fill-background" />
             </div>
-            <span className="font-black text-sm">
+            <span className="font-black text-sm truncate">
               MAROMBA<span className="text-primary">CLUB</span>
             </span>
           </div>
         )}
+        {/* Desktop collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-white/5 transition-all ml-auto"
+          className="w-7 h-7 rounded-lg hidden lg:flex items-center justify-center text-muted hover:text-foreground hover:bg-white/5 transition-all ml-auto flex-shrink-0"
         >
           {collapsed ? <Menu className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
+        {/* Mobile close button */}
+        <button
+          onClick={onMobileClose}
+          className="w-7 h-7 rounded-lg lg:hidden flex items-center justify-center text-muted hover:text-foreground hover:bg-white/5 transition-all ml-auto flex-shrink-0"
+        >
+          <X className="w-4 h-4" />
         </button>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-4 px-2">
+      <nav className="flex-1 overflow-y-auto py-3 px-2">
         {!collapsed && (
           <p className="text-[10px] font-bold uppercase text-muted/60 tracking-widest px-3 mb-2">
             Menu
@@ -99,7 +128,7 @@ export function AdminSidebar() {
                   )}
                 >
                   <item.icon className={cn("w-4 h-4 flex-shrink-0", active && "text-primary")} />
-                  {!collapsed && item.label}
+                  {!collapsed && <span className="truncate">{item.label}</span>}
                 </Link>
               </li>
             );
@@ -108,7 +137,7 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border flex-shrink-0">
         <Link
           href="/"
           className={cn(
@@ -121,5 +150,49 @@ export function AdminSidebar() {
         </Link>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar — always visible */}
+      <div className="hidden lg:flex h-screen sticky top-0 flex-shrink-0 z-40">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 lg:hidden"
+          aria-hidden="true"
+          onClick={onMobileClose}
+        >
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+        </div>
+      )}
+
+      {/* Mobile drawer panel */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 lg:hidden transition-transform duration-300 ease-in-out",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="h-full w-64">
+          {sidebarContent}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export function AdminMenuButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl text-muted hover:text-foreground hover:bg-white/5 transition-all"
+      aria-label="Abrir menu"
+    >
+      <Menu className="w-5 h-5" />
+    </button>
   );
 }

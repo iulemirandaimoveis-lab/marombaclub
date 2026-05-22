@@ -4,728 +4,1133 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[];
+  | Json[]
 
-export interface Database {
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   public: {
     Tables: {
-      stores: {
-        Row: {
-          id: string;
-          name: string;
-          address: string | null;
-          phone: string | null;
-          is_active: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          address?: string | null;
-          phone?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          address?: string | null;
-          phone?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-        };
-      };
-      profiles: {
-        Row: {
-          id: string;
-          name: string | null;
-          phone: string | null;
-          birth_date: string | null;
-          role: string;
-          store_id: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id: string;
-          name?: string | null;
-          phone?: string | null;
-          birth_date?: string | null;
-          role?: string;
-          store_id?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string | null;
-          phone?: string | null;
-          birth_date?: string | null;
-          role?: string;
-          store_id?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      products: {
-        Row: {
-          id: string;
-          name: string;
-          slug: string;
-          brand: string;
-          category_id: string | null;
-          barcode_ean: string | null;
-          sku: string | null;
-          description: string | null;
-          price_cents: number;
-          old_price_cents: number | null;
-          cost_cents: number | null;
-          flavor: string | null;
-          weight_volume: string | null;
-          unit: string | null;
-          is_active: boolean;
-          is_club_exclusive: boolean;
-          image_url: string | null;
-          emoji: string | null;
-          points_per_unit: number;
-          nutritional_info: Json | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          slug: string;
-          brand: string;
-          category_id?: string | null;
-          barcode_ean?: string | null;
-          sku?: string | null;
-          description?: string | null;
-          price_cents: number;
-          old_price_cents?: number | null;
-          cost_cents?: number | null;
-          flavor?: string | null;
-          weight_volume?: string | null;
-          unit?: string | null;
-          is_active?: boolean;
-          is_club_exclusive?: boolean;
-          image_url?: string | null;
-          emoji?: string | null;
-          points_per_unit?: number;
-          nutritional_info?: Json | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          slug?: string;
-          brand?: string;
-          category_id?: string | null;
-          barcode_ean?: string | null;
-          sku?: string | null;
-          description?: string | null;
-          price_cents?: number;
-          old_price_cents?: number | null;
-          cost_cents?: number | null;
-          flavor?: string | null;
-          weight_volume?: string | null;
-          unit?: string | null;
-          is_active?: boolean;
-          is_club_exclusive?: boolean;
-          image_url?: string | null;
-          emoji?: string | null;
-          points_per_unit?: number;
-          nutritional_info?: Json | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      product_categories: {
-        Row: {
-          id: string;
-          name: string;
-          slug: string;
-          icon: string | null;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          slug: string;
-          icon?: string | null;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          slug?: string;
-          icon?: string | null;
-        };
-      };
-      product_images: {
-        Row: {
-          id: string;
-          product_id: string;
-          url: string;
-          alt: string | null;
-          sort_order: number;
-        };
-        Insert: {
-          id?: string;
-          product_id: string;
-          url: string;
-          alt?: string | null;
-          sort_order?: number;
-        };
-        Update: {
-          id?: string;
-          product_id?: string;
-          url?: string;
-          alt?: string | null;
-          sort_order?: number;
-        };
-      };
-      inventory: {
-        Row: {
-          id: string;
-          store_id: string;
-          product_id: string;
-          quantity: number;
-          min_quantity: number;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          store_id: string;
-          product_id: string;
-          quantity?: number;
-          min_quantity?: number;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          store_id?: string;
-          product_id?: string;
-          quantity?: number;
-          min_quantity?: number;
-          updated_at?: string;
-        };
-      };
-      inventory_movements: {
-        Row: {
-          id: string;
-          store_id: string;
-          product_id: string;
-          movement_type: string;
-          quantity: number;
-          reason: string | null;
-          order_id: string | null;
-          transfer_id: string | null;
-          lot: string | null;
-          expires_at: string | null;
-          created_by: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          store_id: string;
-          product_id: string;
-          movement_type: string;
-          quantity: number;
-          reason?: string | null;
-          order_id?: string | null;
-          transfer_id?: string | null;
-          lot?: string | null;
-          expires_at?: string | null;
-          created_by?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          store_id?: string;
-          product_id?: string;
-          movement_type?: string;
-          quantity?: number;
-          reason?: string | null;
-          order_id?: string | null;
-          transfer_id?: string | null;
-          lot?: string | null;
-          expires_at?: string | null;
-          created_by?: string | null;
-          created_at?: string;
-        };
-      };
-      stock_transfers: {
-        Row: {
-          id: string;
-          from_store_id: string;
-          to_store_id: string;
-          product_id: string;
-          quantity: number;
-          status: string;
-          created_by: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          from_store_id: string;
-          to_store_id: string;
-          product_id: string;
-          quantity: number;
-          status?: string;
-          created_by?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          from_store_id?: string;
-          to_store_id?: string;
-          product_id?: string;
-          quantity?: number;
-          status?: string;
-          created_by?: string | null;
-          created_at?: string;
-        };
-      };
-      orders: {
-        Row: {
-          id: string;
-          customer_id: string | null;
-          store_id: string | null;
-          status: string;
-          payment_status: string;
-          subtotal_cents: number;
-          discount_cents: number;
-          shipping_cents: number;
-          total_cents: number;
-          points_earned: number;
-          points_redeemed: number;
-          delivery_type: string;
-          coupon_code: string | null;
-          delivery_address: Json | null;
-          pagbank_order_id: string | null;
-          payment_method: string | null;
-          payment_id: string | null;
-          shipping_address: Json | null;
-          notes: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          customer_id?: string | null;
-          store_id?: string | null;
-          status?: string;
-          payment_status?: string;
-          subtotal_cents: number;
-          discount_cents?: number;
-          shipping_cents?: number;
-          total_cents: number;
-          points_earned?: number;
-          points_redeemed?: number;
-          delivery_type?: string;
-          coupon_code?: string | null;
-          delivery_address?: Json | null;
-          pagbank_order_id?: string | null;
-          payment_method?: string | null;
-          payment_id?: string | null;
-          shipping_address?: Json | null;
-          notes?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          customer_id?: string | null;
-          store_id?: string | null;
-          status?: string;
-          payment_status?: string;
-          subtotal_cents?: number;
-          discount_cents?: number;
-          shipping_cents?: number;
-          total_cents?: number;
-          points_earned?: number;
-          points_redeemed?: number;
-          delivery_type?: string;
-          coupon_code?: string | null;
-          delivery_address?: Json | null;
-          pagbank_order_id?: string | null;
-          payment_method?: string | null;
-          payment_id?: string | null;
-          shipping_address?: Json | null;
-          notes?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      order_items: {
-        Row: {
-          id: string;
-          order_id: string;
-          product_id: string;
-          quantity: number;
-          unit_price_cents: number;
-          total_cents: number;
-          flavor: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          order_id: string;
-          product_id: string;
-          quantity: number;
-          unit_price_cents: number;
-          total_cents: number;
-          flavor?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          order_id?: string;
-          product_id?: string;
-          quantity?: number;
-          unit_price_cents?: number;
-          total_cents?: number;
-          flavor?: string | null;
-          created_at?: string;
-        };
-      };
-      payment_events: {
-        Row: {
-          id: string;
-          provider: string;
-          provider_id: string | null;
-          order_id: string | null;
-          event_type: string;
-          status: string | null;
-          amount_cents: number | null;
-          raw_payload: Json | null;
-          processed_at: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          provider?: string;
-          provider_id?: string | null;
-          order_id?: string | null;
-          event_type: string;
-          status?: string | null;
-          amount_cents?: number | null;
-          raw_payload?: Json | null;
-          processed_at?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          provider?: string;
-          provider_id?: string | null;
-          order_id?: string | null;
-          event_type?: string;
-          status?: string | null;
-          amount_cents?: number | null;
-          raw_payload?: Json | null;
-          processed_at?: string | null;
-          created_at?: string;
-        };
-      };
-      loyalty_accounts: {
-        Row: {
-          id: string;
-          customer_id: string;
-          total_points: number;
-          lifetime_points: number;
-          tier: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          customer_id: string;
-          total_points?: number;
-          lifetime_points?: number;
-          tier?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          customer_id?: string;
-          total_points?: number;
-          lifetime_points?: number;
-          tier?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      loyalty_tiers: {
-        Row: {
-          id: string;
-          name: string;
-          min_points: number;
-          multiplier: number;
-          perks: Json | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          min_points: number;
-          multiplier?: number;
-          perks?: Json | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          min_points?: number;
-          multiplier?: number;
-          perks?: Json | null;
-          created_at?: string;
-        };
-      };
-      loyalty_points_ledger: {
-        Row: {
-          id: string;
-          customer_id: string;
-          entry_type: string;
-          points: number;
-          order_id: string | null;
-          description: string | null;
-          expires_at: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          customer_id: string;
-          entry_type: string;
-          points: number;
-          order_id?: string | null;
-          description?: string | null;
-          expires_at?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          customer_id?: string;
-          entry_type?: string;
-          points?: number;
-          order_id?: string | null;
-          description?: string | null;
-          expires_at?: string | null;
-          created_at?: string;
-        };
-      };
-      loyalty_rewards: {
-        Row: {
-          id: string;
-          name: string;
-          description: string | null;
-          points_cost: number;
-          reward_type: string;
-          value_cents: number | null;
-          product_id: string | null;
-          is_active: boolean;
-          image_url: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          description?: string | null;
-          points_cost: number;
-          reward_type: string;
-          value_cents?: number | null;
-          product_id?: string | null;
-          is_active?: boolean;
-          image_url?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          description?: string | null;
-          points_cost?: number;
-          reward_type?: string;
-          value_cents?: number | null;
-          product_id?: string | null;
-          is_active?: boolean;
-          image_url?: string | null;
-          created_at?: string;
-        };
-      };
-      loyalty_redemptions: {
-        Row: {
-          id: string;
-          customer_id: string;
-          reward_id: string;
-          status: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          customer_id: string;
-          reward_id: string;
-          status?: string;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          customer_id?: string;
-          reward_id?: string;
-          status?: string;
-          created_at?: string;
-        };
-      };
-      loyalty_campaigns: {
-        Row: {
-          id: string;
-          name: string;
-          description: string | null;
-          multiplier: number;
-          starts_at: string;
-          ends_at: string;
-          product_id: string | null;
-          category_id: string | null;
-          is_active: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          description?: string | null;
-          multiplier?: number;
-          starts_at: string;
-          ends_at: string;
-          product_id?: string | null;
-          category_id?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          description?: string | null;
-          multiplier?: number;
-          starts_at?: string;
-          ends_at?: string;
-          product_id?: string | null;
-          category_id?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-        };
-      };
-      coupons: {
-        Row: {
-          id: string;
-          code: string;
-          discount_type: string;
-          discount_value: number;
-          min_order_cents: number | null;
-          max_uses: number | null;
-          used_count: number;
-          expires_at: string | null;
-          is_active: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          code: string;
-          discount_type: string;
-          discount_value: number;
-          min_order_cents?: number | null;
-          max_uses?: number | null;
-          used_count?: number;
-          expires_at?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          code?: string;
-          discount_type?: string;
-          discount_value?: number;
-          min_order_cents?: number | null;
-          max_uses?: number | null;
-          used_count?: number;
-          expires_at?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-        };
-      };
       audit_logs: {
         Row: {
-          id: string;
-          user_id: string | null;
-          action: string;
-          table_name: string | null;
-          record_id: string | null;
-          old_values: Json | null;
-          new_values: Json | null;
-          ip_address: string | null;
-          created_at: string;
-        };
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_id: string | null
+        }
         Insert: {
-          id?: string;
-          user_id?: string | null;
-          action: string;
-          table_name?: string | null;
-          record_id?: string | null;
-          old_values?: Json | null;
-          new_values?: Json | null;
-          ip_address?: string | null;
-          created_at?: string;
-        };
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_id?: string | null
+        }
         Update: {
-          id?: string;
-          user_id?: string | null;
-          action?: string;
-          table_name?: string | null;
-          record_id?: string | null;
-          old_values?: Json | null;
-          new_values?: Json | null;
-          ip_address?: string | null;
-          created_at?: string;
-        };
-      };
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_order_cents: number | null
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_type: string
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_cents?: number | null
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_cents?: number | null
+          used_count?: number
+        }
+        Relationships: []
+      }
       delivery_tracking: {
         Row: {
-          id: string;
-          order_id: string;
-          entregador_id: string | null;
-          lat: number | null;
-          lng: number | null;
-          status: string;
-          note: string | null;
-          updated_at: string;
-        };
+          entregador_id: string | null
+          id: string
+          lat: number | null
+          lng: number | null
+          note: string | null
+          order_id: string
+          status: string
+          updated_at: string
+        }
         Insert: {
-          id?: string;
-          order_id: string;
-          entregador_id?: string | null;
-          lat?: number | null;
-          lng?: number | null;
-          status?: string;
-          note?: string | null;
-          updated_at?: string;
-        };
+          entregador_id?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          note?: string | null
+          order_id: string
+          status?: string
+          updated_at?: string
+        }
         Update: {
-          id?: string;
-          order_id?: string;
-          entregador_id?: string | null;
-          lat?: number | null;
-          lng?: number | null;
-          status?: string;
-          note?: string | null;
-          updated_at?: string;
-        };
-      };
-    };
-    Views: Record<string, { Row: Record<string, unknown> }>;
+          entregador_id?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          note?: string | null
+          order_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_tracking_entregador_id_fkey"
+            columns: ["entregador_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_tracking_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory: {
+        Row: {
+          id: string
+          min_quantity: number
+          product_id: string
+          quantity: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          min_quantity?: number
+          product_id: string
+          quantity?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          min_quantity?: number
+          product_id?: string
+          quantity?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_movements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          lot: string | null
+          movement_type: string
+          order_id: string | null
+          product_id: string
+          quantity: number
+          reason: string | null
+          store_id: string
+          transfer_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          lot?: string | null
+          movement_type: string
+          order_id?: string | null
+          product_id: string
+          quantity: number
+          reason?: string | null
+          store_id: string
+          transfer_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          lot?: string | null
+          movement_type?: string
+          order_id?: string | null
+          product_id?: string
+          quantity?: number
+          reason?: string | null
+          store_id?: string
+          transfer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "stock_transfers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_accounts: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          lifetime_points: number
+          tier: string
+          total_points: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          lifetime_points?: number
+          tier?: string
+          total_points?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          lifetime_points?: number
+          tier?: string
+          total_points?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_accounts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_campaigns: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string | null
+          ends_at: string
+          id: string
+          is_active: boolean
+          multiplier: number
+          name: string
+          product_id: string | null
+          starts_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          id?: string
+          is_active?: boolean
+          multiplier?: number
+          name: string
+          product_id?: string | null
+          starts_at: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          id?: string
+          is_active?: boolean
+          multiplier?: number
+          name?: string
+          product_id?: string | null
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_campaigns_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_campaigns_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_points_ledger: {
+        Row: {
+          created_at: string
+          customer_id: string
+          description: string | null
+          entry_type: string
+          expires_at: string | null
+          id: string
+          order_id: string | null
+          points: number
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          description?: string | null
+          entry_type: string
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          points: number
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          description?: string | null
+          entry_type?: string
+          expires_at?: string | null
+          id?: string
+          order_id?: string | null
+          points?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_points_ledger_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_redemptions: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          reward_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          reward_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          reward_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_redemptions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_redemptions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_rewards: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          points_cost: number
+          product_id: string | null
+          reward_type: string
+          value_cents: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          points_cost: number
+          product_id?: string | null
+          reward_type: string
+          value_cents?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          points_cost?: number
+          product_id?: string | null
+          reward_type?: string
+          value_cents?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_rewards_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_tiers: {
+        Row: {
+          created_at: string
+          id: string
+          min_points: number
+          multiplier: number
+          name: string
+          perks: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          min_points: number
+          multiplier?: number
+          name: string
+          perks?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          min_points?: number
+          multiplier?: number
+          name?: string
+          perks?: Json | null
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          flavor: string | null
+          id: string
+          order_id: string
+          product_id: string
+          quantity: number
+          total_cents: number
+          unit_price_cents: number
+        }
+        Insert: {
+          created_at?: string
+          flavor?: string | null
+          id?: string
+          order_id: string
+          product_id: string
+          quantity: number
+          total_cents: number
+          unit_price_cents: number
+        }
+        Update: {
+          created_at?: string
+          flavor?: string | null
+          id?: string
+          order_id?: string
+          product_id?: string
+          quantity?: number
+          total_cents?: number
+          unit_price_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          boleto_barcode: string | null
+          coupon_code: string | null
+          created_at: string
+          customer_id: string | null
+          delivery_address: Json | null
+          delivery_type: string
+          discount_cents: number
+          driver_lat: number | null
+          driver_lng: number | null
+          estimated_delivery_at: string | null
+          id: string
+          notes: string | null
+          pagbank_charge_id: string | null
+          pagbank_order_id: string | null
+          payment_id: string | null
+          payment_method: string | null
+          payment_status: string
+          payment_url: string | null
+          pix_qr_code: string | null
+          pix_qr_code_text: string | null
+          points_earned: number
+          points_redeemed: number
+          shipping_address: Json | null
+          shipping_cents: number
+          status: string
+          store_id: string | null
+          subtotal_cents: number
+          total_cents: number
+          tracking_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          boleto_barcode?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          customer_id?: string | null
+          delivery_address?: Json | null
+          delivery_type?: string
+          discount_cents?: number
+          driver_lat?: number | null
+          driver_lng?: number | null
+          estimated_delivery_at?: string | null
+          id?: string
+          notes?: string | null
+          pagbank_charge_id?: string | null
+          pagbank_order_id?: string | null
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          payment_url?: string | null
+          pix_qr_code?: string | null
+          pix_qr_code_text?: string | null
+          points_earned?: number
+          points_redeemed?: number
+          shipping_address?: Json | null
+          shipping_cents?: number
+          status?: string
+          store_id?: string | null
+          subtotal_cents?: number
+          total_cents?: number
+          tracking_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          boleto_barcode?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          customer_id?: string | null
+          delivery_address?: Json | null
+          delivery_type?: string
+          discount_cents?: number
+          driver_lat?: number | null
+          driver_lng?: number | null
+          estimated_delivery_at?: string | null
+          id?: string
+          notes?: string | null
+          pagbank_charge_id?: string | null
+          pagbank_order_id?: string | null
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          payment_url?: string | null
+          pix_qr_code?: string | null
+          pix_qr_code_text?: string | null
+          points_earned?: number
+          points_redeemed?: number
+          shipping_address?: Json | null
+          shipping_cents?: number
+          status?: string
+          store_id?: string | null
+          subtotal_cents?: number
+          total_cents?: number
+          tracking_code?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_events: {
+        Row: {
+          amount_cents: number | null
+          created_at: string
+          event_type: string
+          id: string
+          order_id: string | null
+          processed_at: string | null
+          provider: string
+          provider_id: string | null
+          raw_payload: Json | null
+          status: string | null
+        }
+        Insert: {
+          amount_cents?: number | null
+          created_at?: string
+          event_type: string
+          id?: string
+          order_id?: string | null
+          processed_at?: string | null
+          provider?: string
+          provider_id?: string | null
+          raw_payload?: Json | null
+          status?: string | null
+        }
+        Update: {
+          amount_cents?: number | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          order_id?: string | null
+          processed_at?: string | null
+          provider?: string
+          provider_id?: string | null
+          raw_payload?: Json | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_categories: {
+        Row: {
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      product_images: {
+        Row: {
+          alt: string | null
+          id: string
+          product_id: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          alt?: string | null
+          id?: string
+          product_id: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          alt?: string | null
+          id?: string
+          product_id?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          barcode_ean: string | null
+          brand: string
+          category_id: string | null
+          cost_cents: number | null
+          created_at: string
+          description: string | null
+          emoji: string | null
+          flavor: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          is_club_exclusive: boolean
+          name: string
+          nutritional_info: Json | null
+          old_price_cents: number | null
+          points_per_unit: number
+          price_cents: number
+          sku: string | null
+          slug: string
+          unit: string | null
+          updated_at: string
+          weight_volume: string | null
+        }
+        Insert: {
+          barcode_ean?: string | null
+          brand: string
+          category_id?: string | null
+          cost_cents?: number | null
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          flavor?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_club_exclusive?: boolean
+          name: string
+          nutritional_info?: Json | null
+          old_price_cents?: number | null
+          points_per_unit?: number
+          price_cents: number
+          sku?: string | null
+          slug: string
+          unit?: string | null
+          updated_at?: string
+          weight_volume?: string | null
+        }
+        Update: {
+          barcode_ean?: string | null
+          brand?: string
+          category_id?: string | null
+          cost_cents?: number | null
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          flavor?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_club_exclusive?: boolean
+          name?: string
+          nutritional_info?: Json | null
+          old_price_cents?: number | null
+          points_per_unit?: number
+          price_cents?: number
+          sku?: string | null
+          slug?: string
+          unit?: string | null
+          updated_at?: string
+          weight_volume?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          phone: string | null
+          role: string
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          name?: string | null
+          phone?: string | null
+          role?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          role?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_transfers: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          from_store_id: string
+          id: string
+          product_id: string
+          quantity: number
+          status: string
+          to_store_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          from_store_id: string
+          id?: string
+          product_id: string
+          quantity: number
+          status?: string
+          to_store_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          from_store_id?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          status?: string
+          to_store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_transfers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_from_store_id_fkey"
+            columns: ["from_store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_to_store_id_fkey"
+            columns: ["to_store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
       increment_coupon_usage: {
-        Args: { coupon_code_param: string };
-        Returns: void;
-      };
-    };
-    Enums: Record<string, string>;
-  };
+        Args: { coupon_code_param: string }
+        Returns: undefined
+      }
+      is_admin: { Args: never; Returns: boolean }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const

@@ -3,14 +3,31 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShoppingCart, Star, Shield, Zap, Package } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Star, Shield, Zap, Package, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
+import { useCartStore } from "@/lib/store/cart";
 import type { Product } from "@/lib/data/products";
 
 export function ProductView({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
+  const addItem = useCartStore((s) => s.addItem);
+
+  function handleAddToCart() {
+    addItem({
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      price_cents: product.price_cents,
+      image_url: product.image_url,
+      flavor: product.flavor ?? null,
+      quantity: qty,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  }
 
   const discount = product.old_price_cents
     ? Math.round(((product.old_price_cents - product.price_cents) / product.old_price_cents) * 100)
@@ -126,9 +143,23 @@ export function ProductView({ product }: { product: Product }) {
                   +
                 </button>
               </div>
-              <Button size="lg" className="flex-1 gap-2">
-                <ShoppingCart className="w-5 h-5" />
-                Adicionar ao carrinho
+              <Button
+                size="lg"
+                className="flex-1 gap-2"
+                onClick={handleAddToCart}
+                disabled={added}
+              >
+                {added ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Adicionado!
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-5 h-5" />
+                    Adicionar ao carrinho
+                  </>
+                )}
               </Button>
             </div>
 

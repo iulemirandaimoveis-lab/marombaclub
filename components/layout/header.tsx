@@ -3,10 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { ShoppingCart, User, Menu, X, Search } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Search, LogOut, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/store/cart";
+import { createClient } from "@/lib/supabase/client";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { signOut } from "@/lib/supabase/auth";
 
 const navLinks = [
   { href: "/catalogo", label: "Catálogo" },
@@ -17,6 +20,8 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const cartCount = useCartStore((s) => s.item_count());
 
   useEffect(() => {
@@ -24,6 +29,21 @@ export function Header() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  async function handleLogout() {
+    await signOut();
+    setUserMenuOpen(false);
+    window.location.href = "/";
+  }
 
   return (
     <header
@@ -72,23 +92,71 @@ export function Header() {
                 <ShoppingCart className="w-4 h-4" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {cartCount}
+                    {cartCount > 9 ? "9+" : cartCount}
                   </span>
                 )}
               </Button>
             </Link>
 
-            <Link href="/login" className="hidden md:block">
-              <Button variant="ghost" size="icon" aria-label="Conta">
-                <User className="w-4 h-4" />
-              </Button>
-            </Link>
+            {user ? (
+              <div className="relative hidden md:block">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Conta"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                >
+                  <User className="w-4 h-4" />
+                </Button>
+                {userMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
+                    <div className="absolute right-0 top-12 z-20 w-52 bg-surface border border-border rounded-2xl shadow-card py-2 overflow-hidden">
+                      <div className="px-4 py-2 border-b border-border mb-1">
+                        <p className="text-xs text-muted truncate">{user.email}</p>
+                      </div>
+                      <Link
+                        href="/perfil"
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/80 hover:text-foreground hover:bg-white/5 transition-all"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <User className="w-4 h-4" />
+                        Meu perfil
+                      </Link>
+                      <Link
+                        href="/pedidos"
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground/80 hover:text-foreground hover:bg-white/5 transition-all"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                        Meus pedidos
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-danger hover:bg-danger/10 transition-all"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sair
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <Link href="/login" className="hidden md:block">
+                <Button variant="ghost" size="icon" aria-label="Entrar">
+                  <User className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
 
-            <Link href="/clube" className="hidden md:block">
-              <Button size="sm" className="font-bold">
-                Entrar no clube
-              </Button>
-            </Link>
+            {!user && (
+              <Link href="/clube" className="hidden md:block">
+                <Button size="sm" className="font-bold">
+                  Entrar no clube
+                </Button>
+              </Link>
+            )}
 
             <Button
               variant="ghost"
@@ -117,17 +185,32 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            <div className="pt-2 border-t border-border flex gap-2">
-              <Link href="/login" className="flex-1" onClick={() => setMobileOpen(false)}>
-                <Button variant="surface" size="md" className="w-full">
-                  Entrar
-                </Button>
-              </Link>
-              <Link href="/clube" className="flex-1" onClick={() => setMobileOpen(false)}>
-                <Button size="md" className="w-full font-bold">
-                  Entrar no clube
-                </Button>
-              </Link>
+            <div className="pt-2 border-t border-border flex flex-col gap-2">
+              {user ? (
+                <>
+                  <Link href="/perfil" className="flex items-center gap-2 px-4 py-3 text-sm text-foreground/80 hover:text-foreground hover:bg-black/5 rounded-lg transition-all" onClick={() => setMobileOpen(false)}>
+                    <User className="w-4 h-4" />
+                    Meu perfil
+                  </Link>
+                  <Link href="/pedidos" className="flex items-center gap-2 px-4 py-3 text-sm text-foreground/80 hover:text-foreground hover:bg-black/5 rounded-lg transition-all" onClick={() => setMobileOpen(false)}>
+                    <ShoppingBag className="w-4 h-4" />
+                    Meus pedidos
+                  </Link>
+                  <button onClick={() => { handleLogout(); setMobileOpen(false); }} className="flex items-center gap-2 px-4 py-3 text-sm text-danger rounded-lg transition-all text-left">
+                    <LogOut className="w-4 h-4" />
+                    Sair
+                  </button>
+                </>
+              ) : (
+                <div className="flex gap-2">
+                  <Link href="/login" className="flex-1" onClick={() => setMobileOpen(false)}>
+                    <Button variant="surface" size="md" className="w-full">Entrar</Button>
+                  </Link>
+                  <Link href="/cadastro" className="flex-1" onClick={() => setMobileOpen(false)}>
+                    <Button size="md" className="w-full font-bold">Criar conta</Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
