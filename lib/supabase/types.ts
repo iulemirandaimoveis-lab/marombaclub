@@ -686,6 +686,38 @@ export interface Database {
           created_at?: string;
         };
       };
+      delivery_tracking: {
+        Row: {
+          id: string;
+          order_id: string;
+          entregador_id: string | null;
+          lat: number | null;
+          lng: number | null;
+          status: string;
+          note: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          entregador_id?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          status?: string;
+          note?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          order_id?: string;
+          entregador_id?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          status?: string;
+          note?: string | null;
+          updated_at?: string;
+        };
+      };
     };
     Views: Record<string, { Row: Record<string, unknown> }>;
     Functions: {
