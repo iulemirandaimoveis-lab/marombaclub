@@ -17,12 +17,24 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [user, setUser] = useState<{ role?: string; name?: string } | null>(null);
   const cartCount = useCartStore((s) => s.item_count());
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      const sb = createClient();
+      sb.auth.getSession().then(({ data: { session } }) => {
+        if (!session) return;
+        (sb as any).from("profiles").select("role, name").eq("id", session.user.id).single()
+          .then(({ data }: any) => setUser(data));
+      });
+    });
   }, []);
 
   return (
@@ -78,17 +90,33 @@ export function Header() {
               </Button>
             </Link>
 
-            <Link href="/login" className="hidden md:block">
-              <Button variant="ghost" size="icon" aria-label="Conta">
-                <User className="w-4 h-4" />
-              </Button>
-            </Link>
-
-            <Link href="/clube" className="hidden md:block">
-              <Button size="sm" className="font-bold">
-                Entrar no clube
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                {["admin_global", "store_manager", "seller"].includes(user.role ?? "") && (
+                  <Link href="/admin" className="hidden md:block">
+                    <Button variant="surface" size="sm" className="font-bold text-xs">Admin</Button>
+                  </Link>
+                )}
+                <Link href="/perfil">
+                  <Button variant="ghost" size="icon" aria-label="Perfil">
+                    <User className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="hidden md:block">
+                  <Button variant="ghost" size="icon" aria-label="Conta">
+                    <User className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link href="/clube" className="hidden md:block">
+                  <Button size="sm" className="font-bold">
+                    Entrar no clube
+                  </Button>
+                </Link>
+              </>
+            )}
 
             <Button
               variant="ghost"

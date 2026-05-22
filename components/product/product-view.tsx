@@ -4,13 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingCart, Star, Shield, Zap, Package } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import type { Product } from "@/lib/data/products";
+import { useCartStore } from "@/lib/store/cart";
 
 export function ProductView({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
+  const { addItem } = useCartStore();
+  const router = useRouter();
 
   const discount = product.old_price_cents
     ? Math.round(((product.old_price_cents - product.price_cents) / product.old_price_cents) * 100)
@@ -126,7 +130,23 @@ export function ProductView({ product }: { product: Product }) {
                   +
                 </button>
               </div>
-              <Button size="lg" className="flex-1 gap-2">
+              <Button
+                size="lg"
+                className="flex-1 gap-2"
+                onClick={() => {
+                  for (let i = 0; i < qty; i++) {
+                    addItem({
+                      id: product.id,
+                      name: product.name,
+                      brand: product.brand,
+                      price_cents: product.price_cents,
+                      image_url: product.image_url,
+                      flavor: null,
+                    });
+                  }
+                  router.push("/carrinho");
+                }}
+              >
                 <ShoppingCart className="w-5 h-5" />
                 Adicionar ao carrinho
               </Button>

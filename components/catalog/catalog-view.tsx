@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import type { Product } from "@/lib/data/products";
+import { useCartStore } from "@/lib/store/cart";
 
 const CATEGORIES = [
   { label: "Todos", value: "" },
@@ -149,6 +150,7 @@ export function CatalogView({ products }: { products: Product[] }) {
 }
 
 function CatalogProductCard({ product }: { product: Product }) {
+  const { addItem, toggleCart } = useCartStore();
   const discount = product.old_price_cents
     ? Math.round(((product.old_price_cents - product.price_cents) / product.old_price_cents) * 100)
     : null;
@@ -201,8 +203,20 @@ function CatalogProductCard({ product }: { product: Product }) {
             </div>
             <Button
               size="icon-sm"
-              className="opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-neon-sm"
-              onClick={(e) => e.preventDefault()}
+              className="transition-all duration-300 shadow-neon-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addItem({
+                  id: product.id,
+                  name: product.name,
+                  brand: product.brand,
+                  price_cents: product.price_cents,
+                  image_url: product.image_url,
+                  flavor: null,
+                });
+                toggleCart();
+              }}
             >
               <ShoppingCart className="w-3.5 h-3.5" />
             </Button>

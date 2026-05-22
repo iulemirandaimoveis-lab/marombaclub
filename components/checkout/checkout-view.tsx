@@ -40,6 +40,12 @@ export function CheckoutView() {
   const [error, setError] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>("pix");
+  const [paymentData, setPaymentData] = useState<{
+    order_id: string;
+    pix_qr_code: string | null;
+    pix_qr_code_text: string | null;
+    payment_url: string | null;
+  } | null>(null);
   const { items, total_cents, clearCart } = useCartStore();
   const router = useRouter();
 
@@ -95,15 +101,67 @@ export function CheckoutView() {
       }
 
       setOrderId(result.order_id);
+
+      const payRes = await fetch("/api/payments/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: result.order_id, payment_method: paymentMethod }),
+      });
+      const payResult = await payRes.json();
       clearCart();
-      // In production, redirect to PagBank checkout
-      // For now, redirect to success state
-      router.push(`/pedidos?novo=${result.order_id}`);
+      setPaymentData({
+        order_id: result.order_id,
+        pix_qr_code: payResult.pix_qr_code ?? null,
+        pix_qr_code_text: payResult.pix_qr_code_text ?? null,
+        payment_url: payResult.payment_url ?? null,
+      });
+      setIsSubmitting(false);
     } catch {
       setError("Erro de conexão. Verifique sua internet e tente novamente.");
       setIsSubmitting(false);
     }
   };
+
+  if (paymentData) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 flex items-center justify-center">
+        <div className="max-w-md w-full mx-auto px-4">
+          <div className="glass rounded-3xl p-8 border border-border text-center space-y-6">
+            <div className="text-5xl">💳</div>
+            <div>
+              <h2 className="text-2xl font-black text-foreground">Finalize seu pagamento</h2>
+              <p className="text-muted text-sm mt-2">Pedido #{paymentData.order_id.slice(0,8).toUpperCase()}</p>
+            </div>
+            {paymentMethod === "pix" && paymentData.pix_qr_code && (
+              <div className="space-y-4">
+                <img src={paymentData.pix_qr_code} alt="PIX QR Code" className="w-48 h-48 mx-auto rounded-2xl border border-border" />
+                <p className="text-sm text-muted">Escaneie o QR Code com o app do seu banco</p>
+                {paymentData.pix_qr_code_text && (
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(paymentData.pix_qr_code_text!); }}
+                    className="w-full px-4 py-3 rounded-xl bg-primary/10 border border-primary/20 text-primary text-sm font-bold hover:bg-primary/20 transition-colors"
+                  >
+                    📋 Copiar código PIX
+                  </button>
+                )}
+              </div>
+            )}
+            {paymentMethod === "credit" && paymentData.payment_url && (
+              <a href={paymentData.payment_url} target="_blank" rel="noopener noreferrer">
+                <Button size="lg" className="w-full font-black shadow-neon">Pagar com cartão de crédito</Button>
+              </a>
+            )}
+            <div className="border-t border-border pt-4 space-y-3">
+              <Link href={`/pedidos/${paymentData.order_id}`}>
+                <Button variant="surface" size="md" className="w-full">Já paguei — ver meu pedido</Button>
+              </Link>
+              <p className="text-xs text-muted">O status do pagamento é atualizado automaticamente</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0 && !orderId) {
     return (
