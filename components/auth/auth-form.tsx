@@ -103,8 +103,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
               <Image
                 src="/logo.png"
                 alt="Maromba Club"
-                width={200}
-                height={64}
+                width={320}
+                height={94}
                 className="h-16 w-auto"
                 priority
               />

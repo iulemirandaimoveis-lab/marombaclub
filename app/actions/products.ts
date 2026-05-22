@@ -25,6 +25,8 @@ export async function updateProduct(
     cost_cents: number | null;
     description: string | null;
     flavor: string | null;
+    flavors: string[] | null;
+    sizes: string[] | null;
     weight_volume: string | null;
     barcode_ean: string | null;
     image_url: string | null;
