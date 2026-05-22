@@ -61,9 +61,9 @@ export function Header() {
             <Image
               src="/logo.png"
               alt="Maromba Club"
-              width={160}
-              height={48}
-              className="h-10 w-auto object-contain transition-opacity duration-200 group-hover:opacity-80"
+              width={300}
+              height={88}
+              className="h-9 w-auto object-contain transition-opacity duration-200 group-hover:opacity-80"
               priority
             />
           </Link>

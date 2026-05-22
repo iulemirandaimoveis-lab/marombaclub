@@ -786,6 +786,8 @@ export type Database = {
           description: string | null
           emoji: string | null
           flavor: string | null
+          flavors: string[] | null
+          sizes: string[] | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -810,6 +812,8 @@ export type Database = {
           description?: string | null
           emoji?: string | null
           flavor?: string | null
+          flavors?: string[] | null
+          sizes?: string[] | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -834,6 +838,8 @@ export type Database = {
           description?: string | null
           emoji?: string | null
           flavor?: string | null
+          flavors?: string[] | null
+          sizes?: string[] | null
           id?: string
           image_url?: string | null
           is_active?: boolean

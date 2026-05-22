@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
         <div className="glass-strong rounded-3xl p-8 border border-border shadow-card">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <Image src="/logo.png" alt="Maromba Club" width={200} height={64} className="h-16 w-auto" priority />
+              <Image src="/logo.png" alt="Maromba Club" width={320} height={94} className="h-16 w-auto" priority />
             </div>
             <h1 className="text-2xl font-black text-foreground">Recuperar senha</h1>
             <p className="text-muted text-sm mt-2">

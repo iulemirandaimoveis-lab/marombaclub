@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   MapPin, CreditCard, Zap, Shield, ChevronRight, Store,
-  CheckCircle, Package, Truck, AlertCircle,
+  CheckCircle, Package, Truck, AlertCircle, Phone,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
 import { useCartStore } from "@/lib/store/cart";
+
+type StoreOption = { id: string; name: string; address: string | null; phone: string | null };
 
 const formSchema = z.object({
   cep: z.string().optional(),
@@ -33,15 +35,17 @@ const STEPS = [
   { id: "confirm", label: "Confirmação", icon: CheckCircle },
 ];
 
-export function CheckoutView() {
+export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
   const [step, setStep] = useState(0);
   const [deliveryType, setDeliveryType] = useState<"pickup" | "delivery">("delivery");
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(stores[0]?.id ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>("pix");
   const { items, total_cents, clearCart } = useCartStore();
   const router = useRouter();
+  const selectedStore = stores.find((s) => s.id === selectedStoreId);
 
   const subtotal = total_cents();
   const shipping = deliveryType === "delivery" && subtotal < 30000 ? 1990 : 0;
@@ -55,6 +59,11 @@ export function CheckoutView() {
 
   const onSubmit = async (data: CheckoutForm) => {
     if (step < STEPS.length - 1) {
+      if (step === 0 && deliveryType === "pickup" && !selectedStoreId) {
+        setError("Selecione uma loja para retirada.");
+        return;
+      }
+      setError(null);
       setStep((s) => s + 1);
       return;
     }
@@ -73,6 +82,7 @@ export function CheckoutView() {
             unit_price_cents: item.price_cents,
           })),
           delivery_type: deliveryType,
+          store_id: deliveryType === "pickup" ? selectedStoreId : undefined,
           delivery_address:
             deliveryType === "delivery"
               ? {
@@ -211,6 +221,55 @@ export function CheckoutView() {
                         <p className="text-xs opacity-70">Retirar na loja</p>
                       </button>
                     </div>
+
+                    {/* Store picker for pickup */}
+                    {deliveryType === "pickup" && stores.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        className="space-y-2"
+                      >
+                        <p className="text-xs font-semibold text-muted uppercase tracking-wider">Escolha a loja para retirada</p>
+                        {stores.map((store) => (
+                          <button
+                            key={store.id}
+                            type="button"
+                            onClick={() => setSelectedStoreId(store.id)}
+                            className={`w-full p-3 rounded-xl border text-left transition-all flex items-start gap-3 ${
+                              selectedStoreId === store.id
+                                ? "border-primary bg-primary/10"
+                                : "border-border hover:border-primary/40"
+                            }`}
+                          >
+                            <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selectedStoreId === store.id ? "border-primary" : "border-border"}`}>
+                              {selectedStoreId === store.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`text-sm font-bold ${selectedStoreId === store.id ? "text-primary" : "text-foreground"}`}>{store.name}</p>
+                              {store.address && (
+                                <p className="text-xs text-muted mt-0.5 flex items-center gap-1">
+                                  <MapPin className="w-3 h-3 flex-shrink-0" />{store.address}
+                                </p>
+                              )}
+                              {store.phone && (
+                                <p className="text-xs text-muted flex items-center gap-1">
+                                  <Phone className="w-3 h-3 flex-shrink-0" />{store.phone}
+                                </p>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                        {!selectedStoreId && (
+                          <p className="text-xs text-danger">Selecione uma loja para continuar.</p>
+                        )}
+                      </motion.div>
+                    )}
+
+                    {deliveryType === "pickup" && stores.length === 0 && (
+                      <p className="text-sm text-muted bg-surface rounded-xl p-3 border border-border">
+                        Nenhuma loja disponível para retirada no momento.
+                      </p>
+                    )}
 
                     {deliveryType === "delivery" && (
                       <motion.div
@@ -356,7 +415,9 @@ export function CheckoutView() {
                     <div className="bg-surface rounded-xl p-3 text-xs text-muted">
                       <strong className="text-foreground">Entrega:</strong>{" "}
                       {deliveryType === "pickup"
-                        ? "Retirada na loja"
+                        ? selectedStore
+                          ? `Retirada em ${selectedStore.name}${selectedStore.address ? ` — ${selectedStore.address}` : ""}`
+                          : "Retirada na loja"
                         : `${getValues("address") || "Endereço informado"} · ${getValues("city") || ""}`}
                     </div>
                   </motion.div>
