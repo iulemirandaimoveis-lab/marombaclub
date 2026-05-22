@@ -140,7 +140,9 @@ export function Hero() {
                 <div className="w-52 h-52 relative animate-float">
                   <div className="w-full h-full rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
                     <div className="text-center">
-                      <div className="text-6xl mb-2">💪</div>
+                      <div className="w-16 h-16 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center mx-auto mb-2">
+                        <Zap className="w-8 h-8 text-primary fill-primary" />
+                      </div>
                       <p className="text-primary font-black text-sm">WHEY PROTEIN</p>
                       <p className="text-muted text-xs">900g — Chocolate</p>
                     </div>
@@ -171,7 +173,7 @@ export function Hero() {
                       transition={{ delay: 1, duration: 1.2, ease: "easeOut" }}
                     />
                   </div>
-                  <p className="text-xs text-muted">Faltam 300 pts para Gold 🏆</p>
+                  <p className="text-xs text-muted">Faltam 300 pts para Gold</p>
                 </div>
               </div>
 
@@ -198,8 +200,8 @@ export function Hero() {
                 transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-warning/20 rounded-xl flex items-center justify-center text-sm">
-                    🏆
+                  <div className="w-8 h-8 bg-warning/20 rounded-xl flex items-center justify-center">
+                    <Star className="w-4 h-4 text-warning fill-warning" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-foreground">Nível Gold!</p>

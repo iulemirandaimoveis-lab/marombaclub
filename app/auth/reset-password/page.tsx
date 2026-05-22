@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Lock, Eye, EyeOff } from "lucide-react";
+import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
@@ -73,7 +73,11 @@ function ResetPasswordForm() {
 
           {done ? (
             <div className="text-center space-y-4">
-              <div className="text-5xl">✅</div>
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-success/15 flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-success" />
+                </div>
+              </div>
               <p className="text-foreground font-bold">Senha redefinida!</p>
               <p className="text-muted text-sm">Você será redirecionado em instantes...</p>
             </div>

@@ -1,34 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Zap } from "lucide-react";
+import { Check, Zap, Trophy, Star, Shield, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const tiers = [
   {
     name: "Bronze",
-    emoji: "🥉",
+    Icon: Trophy,
+    iconColor: "text-amber-600",
+    iconBg: "bg-amber-600/15",
     min_points: 0,
-    color: "from-amber-700/20 to-amber-800/10",
     border: "border-amber-700/30",
     text: "text-amber-500",
     perks: ["Acesso ao catálogo", "1 ponto por R$ 1", "Newsletter exclusiva"],
   },
   {
     name: "Silver",
-    emoji: "🥈",
+    Icon: Star,
+    iconColor: "text-slate-400",
+    iconBg: "bg-slate-400/15",
     min_points: 500,
-    color: "from-slate-400/20 to-slate-500/10",
     border: "border-slate-400/30",
     text: "text-slate-600",
     perks: ["Tudo do Bronze", "Frete grátis em compras +R$ 200", "Acesso antecipado a promoções"],
   },
   {
     name: "Gold",
-    emoji: "🥇",
+    Icon: Star,
+    iconColor: "text-yellow-400",
+    iconBg: "bg-yellow-400/15",
     min_points: 1500,
-    color: "from-yellow-400/20 to-yellow-500/10",
     border: "border-yellow-400/30",
     text: "text-yellow-400",
     perks: ["Tudo do Silver", "1.5x pontos em compras", "Produtos exclusivos do clube"],
@@ -36,18 +39,20 @@ const tiers = [
   },
   {
     name: "Black",
-    emoji: "⚫",
+    Icon: Shield,
+    iconColor: "text-foreground",
+    iconBg: "bg-white/8",
     min_points: 4000,
-    color: "from-gray-700/10 to-gray-800/5",
     border: "border-gray-400/30",
     text: "text-gray-800",
     perks: ["Tudo do Gold", "2x pontos em compras", "Atendimento prioritário", "Brindes mensais"],
   },
   {
     name: "Beast Mode",
-    emoji: "💥",
+    Icon: Flame,
+    iconColor: "text-primary",
+    iconBg: "bg-primary/15",
     min_points: 8000,
-    color: "from-primary/25 to-primary/10",
     border: "border-primary/40",
     text: "text-primary",
     perks: [
@@ -94,7 +99,9 @@ export function Tiers() {
                 Popular
               </div>
             )}
-            <div className="text-3xl mb-3">{tier.emoji}</div>
+            <div className={`w-9 h-9 rounded-xl ${tier.iconBg} flex items-center justify-center mb-3`}>
+              <tier.Icon className={`w-4.5 h-4.5 ${tier.iconColor}`} />
+            </div>
             <h3 className={`font-black text-lg mb-1 ${tier.text}`}>{tier.name}</h3>
             <p className="text-xs text-muted mb-4">
               {tier.min_points === 0 ? "Entrada gratuita" : `A partir de ${tier.min_points.toLocaleString("pt-BR")} pts`}

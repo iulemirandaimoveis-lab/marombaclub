@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, SlidersHorizontal, X, Star, ShoppingCart, Check } from "lucide-react";
+import { Search, SlidersHorizontal, X, Star, ShoppingCart, Check, Package } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -183,9 +183,7 @@ function CatalogProductCard({ product }: { product: Product }) {
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <span className="text-5xl transition-transform duration-500 group-hover:scale-110">
-              {product.emoji ?? "📦"}
-            </span>
+            <Package className="w-12 h-12 text-muted/40 transition-transform duration-500 group-hover:scale-110" />
           )}
           <div className="absolute top-3 left-3 flex flex-col gap-1">
             {discount && (

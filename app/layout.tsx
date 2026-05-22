@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { Inter, Bebas_Neue } from "next/font/google";
+import { Inter, Anton } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -11,10 +11,10 @@ const inter = Inter({
   display: "swap",
 });
 
-const bebasNeue = Bebas_Neue({
+const anton = Anton({
   weight: "400",
   subsets: ["latin"],
-  variable: "--font-bebas",
+  variable: "--font-anton",
   display: "swap",
 });
 
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${bebasNeue.variable}`}>
+    <html lang="pt-BR" className={`${inter.variable} ${anton.variable}`}>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <Header />
         <main>{children}</main>

@@ -17,13 +17,13 @@ import { useRouter } from "next/navigation";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const TIER_CONFIG: Record<string, {
-  label: string; color: string; bg: string; border: string; icon: string; next: number | null;
+  label: string; color: string; bg: string; border: string; Icon: typeof Trophy; iconColor: string; next: number | null;
 }> = {
-  BRONZE: { label: "Bronze", color: "text-amber-600", bg: "bg-amber-100", border: "border-amber-300", icon: "🥉", next: 500 },
-  SILVER: { label: "Prata", color: "text-gray-500", bg: "bg-gray-100", border: "border-gray-300", icon: "🥈", next: 1500 },
-  GOLD: { label: "Ouro", color: "text-yellow-500", bg: "bg-yellow-50", border: "border-yellow-300", icon: "🥇", next: 4000 },
-  BLACK: { label: "Black", color: "text-gray-900", bg: "bg-gray-900/10", border: "border-gray-700", icon: "⚫", next: 8000 },
-  BEAST_MODE: { label: "Beast Mode", color: "text-red-500", bg: "bg-red-50", border: "border-red-300", icon: "💪", next: null },
+  BRONZE: { label: "Bronze", color: "text-amber-600", bg: "bg-amber-100", border: "border-amber-300", Icon: Trophy, iconColor: "text-amber-600", next: 500 },
+  SILVER: { label: "Prata", color: "text-gray-500", bg: "bg-gray-100", border: "border-gray-300", Icon: Star, iconColor: "text-gray-500", next: 1500 },
+  GOLD: { label: "Ouro", color: "text-yellow-500", bg: "bg-yellow-50", border: "border-yellow-300", Icon: Star, iconColor: "text-yellow-500", next: 4000 },
+  BLACK: { label: "Black", color: "text-gray-900", bg: "bg-gray-900/10", border: "border-gray-700", Icon: Shield, iconColor: "text-gray-700", next: 8000 },
+  BEAST_MODE: { label: "Beast Mode", color: "text-red-500", bg: "bg-red-50", border: "border-red-300", Icon: Zap, iconColor: "text-red-500", next: null },
 };
 
 const ORDER_STATUS: Record<string, { label: string; icon: typeof Package; color: string }> = {
@@ -101,8 +101,8 @@ export function ProfileClient({ user, profile, loyalty, orders }: Props) {
                   {(profile?.name ?? user.email ?? "U")[0].toUpperCase()}
                 </span>
               </div>
-              <div className={`absolute -bottom-1 -right-1 w-7 h-7 rounded-lg ${tierConfig.bg} ${tierConfig.border} border flex items-center justify-center text-base`}>
-                {tierConfig.icon}
+              <div className={`absolute -bottom-1 -right-1 w-7 h-7 rounded-lg ${tierConfig.bg} ${tierConfig.border} border flex items-center justify-center`}>
+                <tierConfig.Icon className={`w-3.5 h-3.5 ${tierConfig.iconColor}`} />
               </div>
             </div>
 
@@ -326,7 +326,7 @@ export function ProfileClient({ user, profile, loyalty, orders }: Props) {
                   </div>
                   <div>
                     <p className="text-xs text-muted">Nível</p>
-                    <p className={`font-bold ${tierConfig.color}`}>{tierConfig.icon} {tierConfig.label}</p>
+                    <p className={`font-bold flex items-center gap-1 ${tierConfig.color}`}><tierConfig.Icon className="w-3.5 h-3.5" /> {tierConfig.label}</p>
                   </div>
                 </div>
               </div>

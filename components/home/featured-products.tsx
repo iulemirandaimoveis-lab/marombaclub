@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ShoppingCart, Star } from "lucide-react";
+import { ShoppingCart, Star, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
@@ -82,9 +82,7 @@ function ProductCard({ product }: { product: Product }) {
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <span className="text-6xl transition-transform duration-500 group-hover:scale-110">
-              {product.emoji ?? "📦"}
-            </span>
+            <Package className="w-14 h-14 text-muted/40 transition-transform duration-500 group-hover:scale-110" />
           )}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             {discount && (

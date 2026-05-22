@@ -53,7 +53,11 @@ export default function ForgotPasswordPage() {
 
           {sent ? (
             <div className="text-center space-y-4">
-              <div className="text-5xl">📧</div>
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center">
+                  <Mail className="w-8 h-8 text-primary" />
+                </div>
+              </div>
               <p className="text-foreground font-bold">E-mail enviado!</p>
               <p className="text-muted text-sm">
                 Se uma conta existir para <strong>{email}</strong>, você receberá um link para redefinir sua senha em breve. Verifique também o spam.

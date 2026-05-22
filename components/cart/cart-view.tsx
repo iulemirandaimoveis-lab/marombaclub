@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, Zap, Tag } from "lucide-react";
+import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, Zap, Tag, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
@@ -63,7 +63,7 @@ export function CartView() {
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded-xl" />
                     ) : (
-                      "💪"
+                      <Package className="w-8 h-8 text-muted/40" />
                     )}
                   </div>
 

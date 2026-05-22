@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import type React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -11,6 +12,9 @@ import {
   Crown,
   ChevronDown,
   Filter,
+  Trophy,
+  Star,
+  Shield,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -74,15 +78,17 @@ function getTierBadge(tier: string | null) {
     GOLD: "primary",
   };
 
-  const iconMap: Record<string, string> = {
-    BRONZE: "🥉",
-    SILVER: "🥈",
-    GOLD: "🥇",
+  const iconMap: Record<string, React.ElementType> = {
+    BRONZE: Trophy,
+    SILVER: Star,
+    GOLD: Star,
   };
+
+  const TierIcon = iconMap[tier];
 
   return (
     <Badge variant={variantMap[tier] ?? "default"}>
-      <span>{iconMap[tier]}</span>
+      {TierIcon && <TierIcon className="w-3 h-3" />}
       {TIER_LABELS[tier] ?? tier}
     </Badge>
   );

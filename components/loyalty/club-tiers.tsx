@@ -1,12 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Trophy, Star, Shield, Flame } from "lucide-react";
 
 const TIERS = [
   {
     name: "Bronze",
-    emoji: "🥉",
+    Icon: Trophy,
+    iconColor: "text-amber-600",
+    iconBg: "bg-amber-600/15",
     color: "text-amber-500",
     border: "border-amber-700/30",
     glow: "",
@@ -20,7 +22,9 @@ const TIERS = [
   },
   {
     name: "Silver",
-    emoji: "🥈",
+    Icon: Star,
+    iconColor: "text-slate-400",
+    iconBg: "bg-slate-400/15",
     color: "text-slate-300",
     border: "border-slate-400/30",
     glow: "",
@@ -34,7 +38,9 @@ const TIERS = [
   },
   {
     name: "Gold",
-    emoji: "🥇",
+    Icon: Star,
+    iconColor: "text-yellow-400",
+    iconBg: "bg-yellow-400/15",
     color: "text-yellow-400",
     border: "border-yellow-400/40",
     glow: "shadow-[0_0_40px_rgba(250,204,21,0.1)]",
@@ -50,7 +56,9 @@ const TIERS = [
   },
   {
     name: "Black",
-    emoji: "⚫",
+    Icon: Shield,
+    iconColor: "text-white",
+    iconBg: "bg-white/10",
     color: "text-white",
     border: "border-white/20",
     glow: "",
@@ -65,7 +73,9 @@ const TIERS = [
   },
   {
     name: "Beast Mode",
-    emoji: "💥",
+    Icon: Flame,
+    iconColor: "text-primary",
+    iconBg: "bg-primary/15",
     color: "text-primary",
     border: "border-primary/40",
     glow: "shadow-neon",
@@ -109,7 +119,9 @@ export function ClubTiers() {
                   Popular
                 </div>
               )}
-              <div className="text-3xl mb-2">{tier.emoji}</div>
+              <div className={`w-10 h-10 rounded-xl ${tier.iconBg} flex items-center justify-center mb-3`}>
+                <tier.Icon className={`w-5 h-5 ${tier.iconColor}`} />
+              </div>
               <h3 className={`font-black text-xl mb-1 ${tier.color}`}>{tier.name}</h3>
               <p className="text-xs text-muted mb-5">
                 {tier.min_points === 0
