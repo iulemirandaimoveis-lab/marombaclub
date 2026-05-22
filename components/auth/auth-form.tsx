@@ -47,8 +47,21 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     setSuccess(null);
     try {
       if (isLogin) {
-        await signIn(data.email, data.password);
-        window.location.href = "/";
+        const result = await signIn(data.email, data.password);
+        const { createClient } = await import("@/lib/supabase/client");
+        const sb = createClient();
+        const { data: profile } = await sb
+          .from("profiles")
+          .select("role")
+          .eq("id", result.user!.id)
+          .single() as { data: { role: string } | null };
+        const adminRoles = ["admin_global", "store_manager", "seller"];
+        const redirect = new URLSearchParams(window.location.search).get("redirect");
+        if (profile && adminRoles.includes(profile.role)) {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = redirect ?? "/";
+        }
       } else {
         const d = data as RegisterInput;
         await signUp(d.email, d.password, d.name);

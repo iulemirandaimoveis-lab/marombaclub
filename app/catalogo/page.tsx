@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { CatalogView } from "@/components/catalog/catalog-view";
 import { getProducts } from "@/lib/data/products";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Catálogo de Suplementos",
   description:
