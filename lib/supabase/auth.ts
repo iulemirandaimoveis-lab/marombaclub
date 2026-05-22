@@ -7,7 +7,10 @@ export async function signUp(email: string, password: string, name: string) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { name } },
+    options: {
+      data: { name },
+      emailRedirectTo: `${window.location.origin}/auth/callback?next=/`,
+    },
   });
   if (error) throw error;
   return data;
@@ -35,7 +38,7 @@ export async function getSession() {
 export async function resetPassword(email: string) {
   const supabase = createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/reset-password`,
+    redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`,
   });
   if (error) throw error;
 }
