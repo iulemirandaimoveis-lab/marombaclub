@@ -35,9 +35,9 @@ async function getAuditLogs(): Promise<AuditLog[]> {
       .from("audit_logs")
       .select(`
         id, action, table_name, record_id,
-        old_values, new_values, performed_by,
+        old_values, new_values, user_id,
         ip_address, created_at,
-        profile:profiles!audit_logs_performed_by_fkey(name)
+        profile:profiles!audit_logs_user_id_fkey(name)
       `)
       .order("created_at", { ascending: false })
       .limit(100);
@@ -51,7 +51,7 @@ async function getAuditLogs(): Promise<AuditLog[]> {
       record_id: log.record_id ?? null,
       old_values: log.old_values ?? null,
       new_values: log.new_values ?? null,
-      performed_by: log.performed_by ?? null,
+      performed_by: log.user_id ?? null,
       performed_by_name: log.profile?.name ?? null,
       ip_address: log.ip_address ?? null,
       created_at: log.created_at,
