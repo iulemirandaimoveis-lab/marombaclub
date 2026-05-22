@@ -68,7 +68,18 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         setSuccess("Conta criada! Verifique seu e-mail para confirmar o cadastro.");
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erro ao autenticar");
+      const raw = err instanceof Error ? err.message : "";
+      if (raw.includes("Invalid login credentials") || raw.includes("invalid_credentials")) {
+        setError("E-mail ou senha incorretos. Verifique seus dados e tente novamente.");
+      } else if (raw.includes("Email not confirmed") || raw.includes("email_not_confirmed")) {
+        setError("Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada (ou spam).");
+      } else if (raw.includes("rate limit") || raw.includes("over_email_send_rate_limit")) {
+        setError("Muitas tentativas. Aguarde alguns minutos e tente novamente.");
+      } else if (raw.includes("User already registered")) {
+        setError("Este e-mail já está cadastrado. Faça login.");
+      } else {
+        setError(raw || "Ocorreu um erro. Tente novamente.");
+      }
     } finally {
       setLoading(false);
     }

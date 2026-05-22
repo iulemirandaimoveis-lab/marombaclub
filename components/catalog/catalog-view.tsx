@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, SlidersHorizontal, X, Star, ShoppingCart } from "lucide-react";
+import { Search, SlidersHorizontal, X, Star, ShoppingCart, Check } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
+import { useCartStore } from "@/lib/store/cart";
 import type { Product } from "@/lib/data/products";
 
 const CATEGORIES = [
@@ -149,9 +150,27 @@ export function CatalogView({ products }: { products: Product[] }) {
 }
 
 function CatalogProductCard({ product }: { product: Product }) {
+  const [added, setAdded] = useState(false);
+  const addItem = useCartStore((s) => s.addItem);
   const discount = product.old_price_cents
     ? Math.round(((product.old_price_cents - product.price_cents) / product.old_price_cents) * 100)
     : null;
+
+  function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem({
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      price_cents: product.price_cents,
+      image_url: product.image_url,
+      flavor: product.flavor ?? null,
+      quantity: 1,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  }
 
   return (
     <Link href={`/produto/${product.slug}`}>
@@ -202,9 +221,15 @@ function CatalogProductCard({ product }: { product: Product }) {
             <Button
               size="icon-sm"
               className="opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-neon-sm"
-              onClick={(e) => e.preventDefault()}
+              onClick={handleAddToCart}
+              disabled={added}
+              title="Adicionar ao carrinho"
             >
-              <ShoppingCart className="w-3.5 h-3.5" />
+              {added ? (
+                <Check className="w-3.5 h-3.5" />
+              ) : (
+                <ShoppingCart className="w-3.5 h-3.5" />
+              )}
             </Button>
           </div>
         </div>

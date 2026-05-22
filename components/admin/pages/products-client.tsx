@@ -1,19 +1,19 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
   Package,
   Plus,
   Search,
   Edit,
-  Trash2,
   Eye,
   EyeOff,
   ToggleLeft,
   ToggleRight,
   Star,
   ImageOff,
+  Loader2,
 } from "lucide-react";
 import type { AdminProduct } from "@/lib/data/admin";
 import { formatCurrency } from "@/lib/utils";
@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toggleProductActive } from "@/app/actions/products";
 
 interface AdminProductsClientProps {
   products: AdminProduct[];
@@ -40,10 +41,18 @@ export function AdminProductsClient({ products }: AdminProductsClientProps) {
   const clubExclusive = localProducts.filter((p) => p.is_club_exclusive).length;
   const inactiveProducts = localProducts.filter((p) => !p.is_active).length;
 
-  const handleToggleActive = (id: string) => {
+  const handleToggleActive = async (id: string, current: boolean) => {
     setLocalProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, is_active: !p.is_active } : p))
+      prev.map((p) => (p.id === id ? { ...p, is_active: !current } : p))
     );
+    try {
+      await toggleProductActive(id, !current);
+    } catch {
+      // Revert on error
+      setLocalProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, is_active: current } : p))
+      );
+    }
   };
 
   const STATS = [
@@ -209,10 +218,11 @@ export function AdminProductsClient({ products }: AdminProductsClientProps) {
 interface ProductRowProps {
   product: AdminProduct;
   index: number;
-  onToggleActive: (id: string) => void;
+  onToggleActive: (id: string, current: boolean) => Promise<void>;
 }
 
 function ProductRow({ product, index, onToggleActive }: ProductRowProps) {
+  const [isPending, startTransition] = useTransition();
   const isLowStock = product.total_inventory < 10;
 
   return (
@@ -319,9 +329,12 @@ function ProductRow({ product, index, onToggleActive }: ProductRowProps) {
             variant="ghost"
             size="icon-sm"
             title={product.is_active ? "Desativar produto" : "Ativar produto"}
-            onClick={() => onToggleActive(product.id)}
+            disabled={isPending}
+            onClick={() => startTransition(() => onToggleActive(product.id, product.is_active))}
           >
-            {product.is_active ? (
+            {isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin text-muted" />
+            ) : product.is_active ? (
               <ToggleRight className="w-4 h-4 text-primary" />
             ) : (
               <ToggleLeft className="w-4 h-4 text-muted" />
