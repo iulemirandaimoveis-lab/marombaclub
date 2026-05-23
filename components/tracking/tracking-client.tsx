@@ -48,6 +48,23 @@ type Order = {
   tracking: TrackingData[];
 };
 
+async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const q = encodeURIComponent(address + ", Brasil");
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`,
+      { headers: { "Accept-Language": "pt-BR" } }
+    );
+    const data = await res.json();
+    if (data?.[0]) {
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    }
+  } catch {
+    // geocoding failed — not critical
+  }
+  return null;
+}
+
 export function TrackingClient({ order: initialOrder }: { order: Order }) {
   const [order, setOrder] = useState<Order>(initialOrder);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(
@@ -55,11 +72,22 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
       ? { lat: initialOrder.driver_lat, lng: initialOrder.driver_lng }
       : null
   );
+  const [destPos, setDestPos] = useState<{ lat: number; lng: number } | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapRef = useRef<any>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const markerRef = useRef<any>(null);
+  const driverMarkerRef = useRef<any>(null);
+  const destMarkerRef = useRef<any>(null);
   const supabase = createClient();
+
+  // Geocode delivery address once
+  useEffect(() => {
+    const addr = initialOrder.delivery_address;
+    if (!addr) return;
+    const full = [addr.address, addr.city, addr.state, addr.cep].filter(Boolean).join(", ");
+    if (!full) return;
+    geocodeAddress(full).then((pos) => { if (pos) setDestPos(pos); });
+  }, []);
 
   useEffect(() => {
     const channel = supabase
@@ -92,9 +120,10 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
     return () => { supabase.removeChannel(channel); };
   }, [order.id, supabase]);
 
+  // Initialize map when status is ENVIADO or ENTREGUE
   useEffect(() => {
-    if (!mapContainerRef.current || mapLoaded) return;
-    if (order.status !== "ENVIADO") return;
+    const shouldShowMap = order.status === "ENVIADO" || order.status === "ENTREGUE";
+    if (!mapContainerRef.current || mapLoaded || !shouldShowMap) return;
 
     let L: any;
     let map: any;
@@ -102,36 +131,67 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
     async function initMap() {
       try {
         L = (await import("leaflet")).default;
+        await import("leaflet/dist/leaflet.css");
 
         if (!mapContainerRef.current) return;
 
-        const defaultPos = driverPos ?? { lat: -23.55, lng: -46.63 };
-        map = L.map(mapContainerRef.current).setView([defaultPos.lat, defaultPos.lng], 15);
+        const centerPos = driverPos ?? destPos ?? { lat: -15.793889, lng: -47.882778 };
+        map = L.map(mapContainerRef.current).setView([centerPos.lat, centerPos.lng], 15);
         mapRef.current = map;
 
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution: "&copy; OpenStreetMap contributors",
         }).addTo(map);
 
-        const icon = L.divIcon({
+        const driverIcon = L.divIcon({
           className: "",
-          html: `<div style="width:36px;height:36px;background:#00ff88;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,255,136,0.5)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3m-1 11H9a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3.5"/><path d="M14 13a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm3.5 5.5L22 23"/></svg>
+          html: `<div style="width:40px;height:40px;background:#F59E0B;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(245,158,11,0.6)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3m-1 11H9a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="17" cy="18.5" r="1.5"/></svg>
           </div>`,
-          iconSize: [36, 36],
-          iconAnchor: [18, 18],
+          iconSize: [40, 40],
+          iconAnchor: [20, 20],
+        });
+
+        const destIcon = L.divIcon({
+          className: "",
+          html: `<div style="display:flex;flex-direction:column;align-items:center">
+            <div style="width:36px;height:36px;background:#1F2937;border:3px solid #F59E0B;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.4)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#F59E0B" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            </div>
+            <div style="width:2px;height:8px;background:#F59E0B;margin-top:-2px"></div>
+          </div>`,
+          iconSize: [36, 44],
+          iconAnchor: [18, 44],
         });
 
         if (driverPos) {
-          markerRef.current = L.marker([driverPos.lat, driverPos.lng], { icon })
+          driverMarkerRef.current = L.marker([driverPos.lat, driverPos.lng], { icon: driverIcon })
             .addTo(map)
-            .bindPopup("Entregador")
+            .bindPopup("<b>Entregador a caminho</b>")
             .openPopup();
+        }
+
+        if (destPos) {
+          destMarkerRef.current = L.marker([destPos.lat, destPos.lng], { icon: destIcon })
+            .addTo(map)
+            .bindPopup("<b>Endereço de entrega</b>");
+
+          if (!driverPos) {
+            map.setView([destPos.lat, destPos.lng], 15);
+          }
+        }
+
+        if (driverPos && destPos) {
+          const bounds = L.latLngBounds([
+            [driverPos.lat, driverPos.lng],
+            [destPos.lat, destPos.lng],
+          ]);
+          map.fitBounds(bounds, { padding: [40, 40] });
         }
 
         setMapLoaded(true);
       } catch {
-        // Map failed to load - not critical
+        // Map failed to load
       }
     }
 
@@ -140,18 +200,32 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
     return () => {
       if (map) map.remove();
     };
-  }, [order.status]);
+  }, [order.status, destPos]);
 
+  // Update driver marker position in real-time
   useEffect(() => {
     if (!mapRef.current || !driverPos) return;
-    if (!markerRef.current) return;
-    markerRef.current.setLatLng([driverPos.lat, driverPos.lng]);
-    mapRef.current.setView([driverPos.lat, driverPos.lng], 15, { animate: true });
+    if (driverMarkerRef.current) {
+      driverMarkerRef.current.setLatLng([driverPos.lat, driverPos.lng]);
+    }
+    if (destPos) {
+      const L = (window as any).L;
+      if (L) {
+        const bounds = L.latLngBounds([
+          [driverPos.lat, driverPos.lng],
+          [destPos.lat, destPos.lng],
+        ]);
+        mapRef.current.fitBounds(bounds, { padding: [40, 40] });
+      }
+    } else {
+      mapRef.current.setView([driverPos.lat, driverPos.lng], 15, { animate: true });
+    }
   }, [driverPos]);
 
   const currentStep = getStepIndex(order.status);
   const isDelivering = order.status === "ENVIADO";
   const isDelivered = order.status === "ENTREGUE";
+  const showMap = isDelivering || isDelivered;
 
   return (
     <div className="min-h-screen pt-20 pb-16">
@@ -177,7 +251,7 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
 
         {/* Map */}
         <AnimatePresence>
-          {isDelivering && (
+          {showMap && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -187,22 +261,44 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
               <div className="bg-primary/10 px-4 py-2.5 flex items-center justify-between border-b border-primary/20">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <p className="text-sm font-bold text-primary">Entregador a caminho</p>
+                  <p className="text-sm font-bold text-primary">
+                    {isDelivered ? "Pedido entregue" : "Entregador a caminho"}
+                  </p>
                 </div>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="text-primary/70 hover:text-primary"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                </button>
+                {!isDelivered && (
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-primary/70 hover:text-primary"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
 
-              {driverPos ? (
-                <div ref={mapContainerRef} style={{ height: 280, width: "100%" }} />
+              {driverPos || destPos ? (
+                <div ref={mapContainerRef} style={{ height: 300, width: "100%" }} />
               ) : (
-                <div className="h-[280px] flex flex-col items-center justify-center bg-surface gap-3">
+                <div className="h-[300px] flex flex-col items-center justify-center bg-surface gap-3">
                   <Navigation className="w-8 h-8 text-primary/40 animate-pulse" />
                   <p className="text-sm text-muted">Aguardando localização do entregador...</p>
+                </div>
+              )}
+
+              {/* Legend */}
+              {(driverPos || destPos) && (
+                <div className="px-4 py-2.5 bg-surface flex items-center gap-4 text-xs text-muted border-t border-border">
+                  {driverPos && (
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-primary inline-block" />
+                      Entregador
+                    </span>
+                  )}
+                  {destPos && (
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="w-3 h-3 text-primary" />
+                      Destino
+                    </span>
+                  )}
                 </div>
               )}
             </motion.div>

@@ -80,6 +80,35 @@ export type Store = {
   inventory_count: number;
 };
 
+export type StockTransfer = {
+  id: string;
+  from_store_id: string;
+  from_store_name: string;
+  to_store_id: string;
+  to_store_name: string;
+  product_id: string;
+  product_name: string;
+  product_brand: string;
+  quantity: number;
+  status: "PENDENTE" | "CONCLUIDO" | "CANCELADO";
+  created_by_name: string | null;
+  created_at: string;
+};
+
+export type SellerCommission = {
+  id: string;
+  seller_id: string;
+  seller_name: string | null;
+  seller_email: string;
+  order_id: string;
+  amount_cents: number;
+  rate_percent: number;
+  status: "PENDENTE" | "APROVADO" | "PAGO" | "CANCELADO";
+  paid_at: string | null;
+  created_at: string;
+  notes: string | null;
+};
+
 async function safeQuery<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await fn();
@@ -399,6 +428,72 @@ export async function getLoyaltyAccount(userId: string) {
       rewards: rewardsRes.data ?? [],
     };
   }, { account: null, ledger: [], rewards: [] });
+}
+
+export async function getStockTransfers(): Promise<StockTransfer[]> {
+  return safeQuery(async () => {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("stock_transfers")
+      .select(`
+        id, from_store_id, to_store_id, product_id, quantity, status, created_at,
+        from_store:stores!stock_transfers_from_store_id_fkey(name),
+        to_store:stores!stock_transfers_to_store_id_fkey(name),
+        product:products(name, brand),
+        created_by_profile:profiles!stock_transfers_created_by_fkey(name)
+      `)
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    if (error || !data) return [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return data.map((t: any) => ({
+      id: t.id,
+      from_store_id: t.from_store_id,
+      from_store_name: t.from_store?.name ?? "Loja",
+      to_store_id: t.to_store_id,
+      to_store_name: t.to_store?.name ?? "Loja",
+      product_id: t.product_id,
+      product_name: t.product?.name ?? "Produto",
+      product_brand: t.product?.brand ?? "",
+      quantity: t.quantity,
+      status: t.status,
+      created_by_name: t.created_by_profile?.name ?? null,
+      created_at: t.created_at,
+    }));
+  }, []);
+}
+
+export async function getSellerCommissions(): Promise<SellerCommission[]> {
+  return safeQuery(async () => {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("seller_commissions")
+      .select(`
+        id, seller_id, order_id, amount_cents, rate_percent, status, paid_at, created_at, notes,
+        seller:profiles!seller_commissions_seller_id_fkey(name, email)
+      `)
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    if (error || !data) return [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return data.map((c: any) => ({
+      id: c.id,
+      seller_id: c.seller_id,
+      seller_name: c.seller?.name ?? null,
+      seller_email: c.seller?.email ?? "",
+      order_id: c.order_id,
+      amount_cents: c.amount_cents,
+      rate_percent: c.rate_percent,
+      status: c.status,
+      paid_at: c.paid_at,
+      created_at: c.created_at,
+      notes: c.notes,
+    }));
+  }, []);
 }
 
 export async function getCustomerOrders(userId: string) {
