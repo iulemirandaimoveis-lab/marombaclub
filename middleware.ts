@@ -60,7 +60,7 @@ export async function middleware(request: NextRequest) {
 
     const adminRoles = ["admin_global", "store_manager", "seller"];
     if (!profile || !adminRoles.includes(profile.role)) {
-      return NextResponse.redirect(new URL("/login?redirect=" + encodeURIComponent(pathname), request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
