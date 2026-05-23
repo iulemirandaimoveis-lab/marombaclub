@@ -63,6 +63,25 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Entregador RBAC
+  if (pathname.startsWith("/entregador")) {
+    if (!session) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+
+    if (!profile || profile.role !== "entregador") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
   return response;
 }
 

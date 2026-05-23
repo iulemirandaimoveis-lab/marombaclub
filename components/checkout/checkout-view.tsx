@@ -7,7 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   MapPin, CreditCard, Zap, Shield, ChevronRight, Store,
-  CheckCircle, Package, Truck, AlertCircle, Phone, QrCode, FileText,
+  CheckCircle, Package, Truck, AlertCircle, Phone, QrCode,
+  FileText, Copy, Check, ExternalLink,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -35,6 +36,112 @@ const STEPS = [
   { id: "confirm", label: "Confirmação", icon: CheckCircle },
 ];
 
+type PaymentResult = {
+  pix_qr_code_text?: string;
+  pix_qr_code?: string;
+  boleto_barcode?: string;
+  payment_url?: string;
+  demo?: boolean;
+};
+
+function PixDisplay({ qrText, qrImg, demo }: { qrText?: string; qrImg?: string; demo?: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    if (!qrText) return;
+    navigator.clipboard.writeText(qrText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <div className="space-y-4">
+      {demo && (
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-warning/10 border border-warning/20 text-sm text-warning">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          Modo demonstração — configure PAGBANK_TOKEN para PIX real.
+        </div>
+      )}
+      {qrImg && (
+        <div className="flex justify-center">
+          <img src={qrImg} alt="QR Code PIX" className="w-48 h-48 rounded-xl border border-border" />
+        </div>
+      )}
+      {!qrImg && (
+        <div className="flex justify-center">
+          <div className="w-48 h-48 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center gap-2">
+            <QrCode className="w-12 h-12 text-primary/40" />
+            <p className="text-xs text-muted text-center px-4">QR Code disponível após configurar token PagBank</p>
+          </div>
+        </div>
+      )}
+      {qrText && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wider">PIX Copia e Cola</p>
+          <div className="bg-surface rounded-xl p-3 border border-border flex items-start gap-2">
+            <p className="text-xs font-mono text-foreground break-all flex-1 line-clamp-3">{qrText}</p>
+            <button onClick={copy} className="flex-shrink-0 text-primary hover:text-primary/70 transition-colors">
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
+          {copied && <p className="text-xs text-primary text-center">Copiado!</p>}
+        </div>
+      )}
+      <p className="text-xs text-muted text-center">
+        Abra o app do seu banco, escaneie o QR Code ou cole o código PIX para pagar.
+        O pedido é confirmado automaticamente após o pagamento.
+      </p>
+    </div>
+  );
+}
+
+function BoletoDisplay({ barcode, url, demo }: { barcode?: string; url?: string; demo?: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    if (!barcode) return;
+    navigator.clipboard.writeText(barcode).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <div className="space-y-4">
+      {demo && (
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-warning/10 border border-warning/20 text-sm text-warning">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          Modo demonstração — configure PAGBANK_TOKEN para boleto real.
+        </div>
+      )}
+      <div className="bg-surface rounded-xl p-4 border border-border space-y-3">
+        <div className="flex items-center gap-2">
+          <FileText className="w-5 h-5 text-primary" />
+          <p className="font-bold text-foreground">Boleto bancário</p>
+        </div>
+        <p className="text-xs text-muted">Vencimento em 3 dias úteis. Pague em qualquer banco ou lotérica.</p>
+        {barcode && (
+          <div className="space-y-2">
+            <p className="font-mono text-xs text-foreground bg-background rounded-lg p-2 border border-border break-all">
+              {barcode}
+            </p>
+            <div className="flex gap-2">
+              <Button variant="surface" size="sm" onClick={copy} className="flex-1">
+                {copied ? <><Check className="w-3.5 h-3.5" />Copiado!</> : <><Copy className="w-3.5 h-3.5" />Copiar código</>}
+              </Button>
+              {url && (
+                <a href={url} target="_blank" rel="noopener noreferrer">
+                  <Button variant="surface" size="sm">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Ver boleto
+                  </Button>
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
   const [step, setStep] = useState(0);
   const [deliveryType, setDeliveryType] = useState<"pickup" | "delivery">("delivery");
@@ -43,6 +150,7 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
   const [error, setError] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>("pix");
+  const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
   const { items, total_cents, clearCart } = useCartStore();
   const router = useRouter();
   const selectedStore = stores.find((s) => s.id === selectedStoreId);
@@ -52,7 +160,7 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
   const total = subtotal + shipping;
   const points = Math.floor(total / 100);
 
-  const { register, handleSubmit, getValues, formState: { errors } } = useForm<CheckoutForm>({
+  const { register, handleSubmit, getValues, formState: { errors: _errors } } = useForm<CheckoutForm>({
     resolver: zodResolver(formSchema),
     defaultValues: { delivery_type: "delivery" },
   });
@@ -72,7 +180,8 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
     setError(null);
 
     try {
-      const response = await fetch("/api/orders", {
+      // 1. Create order
+      const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -83,37 +192,133 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
           })),
           delivery_type: deliveryType,
           store_id: deliveryType === "pickup" ? selectedStoreId : undefined,
-          delivery_address:
-            deliveryType === "delivery"
-              ? {
-                  cep: data.cep,
-                  address: data.address,
-                  city: data.city,
-                  state: data.state,
-                }
-              : undefined,
+          delivery_address: deliveryType === "delivery"
+            ? { cep: data.cep, address: data.address, city: data.city, state: data.state }
+            : undefined,
           coupon_code: data.coupon_code || undefined,
         }),
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        setError(result.error ?? "Erro ao criar pedido. Tente novamente.");
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        setError(orderData.error ?? "Erro ao criar pedido. Tente novamente.");
         setIsSubmitting(false);
         return;
       }
 
-      setOrderId(result.order_id);
+      const newOrderId = orderData.order_id;
+      setOrderId(newOrderId);
       clearCart();
-      // In production, redirect to PagBank checkout
-      // For now, redirect to success state
-      router.push(`/pedidos?novo=${result.order_id}`);
+
+      // 2. Create PagBank charge
+      const chargeRes = await fetch("/api/pagbank/create-charge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: newOrderId,
+          payment_method: paymentMethod,
+        }),
+      });
+
+      const chargeData = await chargeRes.json();
+
+      if (chargeRes.ok) {
+        setPaymentResult(chargeData);
+        // Don't redirect immediately — show payment info first
+      } else {
+        // Order created but payment failed — redirect to orders
+        router.push(`/pedidos?novo=${newOrderId}`);
+      }
     } catch {
       setError("Erro de conexão. Verifique sua internet e tente novamente.");
+    } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Payment success screen
+  if (paymentResult && orderId) {
+    return (
+      <div className="min-h-screen pt-24 pb-16">
+        <div className="max-w-lg mx-auto px-4 space-y-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="glass rounded-2xl p-6 border border-primary/20 space-y-5"
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-primary" />
+              </div>
+              <h2 className="text-xl font-black text-foreground">Pedido criado!</h2>
+              <p className="text-muted text-sm mt-1 font-mono">#{orderId.slice(0, 8).toUpperCase()}</p>
+            </div>
+
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 flex items-center gap-2 text-sm">
+              <Zap className="w-4 h-4 text-primary fill-primary flex-shrink-0" />
+              <span className="text-primary font-bold">+{points} pontos</span>
+              <span className="text-muted">serão creditados após o pagamento</span>
+            </div>
+
+            {paymentMethod === "pix" && (
+              <PixDisplay
+                qrText={paymentResult.pix_qr_code_text}
+                qrImg={paymentResult.pix_qr_code ?? undefined}
+                demo={paymentResult.demo}
+              />
+            )}
+
+            {paymentMethod === "boleto" && (
+              <BoletoDisplay
+                barcode={paymentResult.boleto_barcode}
+                url={paymentResult.payment_url ?? undefined}
+                demo={paymentResult.demo}
+              />
+            )}
+
+            {paymentMethod === "credit" && (
+              <div className="space-y-4">
+                {paymentResult.demo && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-warning/10 border border-warning/20 text-sm text-warning">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    Modo demonstração — configure PAGBANK_TOKEN para cartão real.
+                  </div>
+                )}
+                {paymentResult.payment_url ? (
+                  <a href={paymentResult.payment_url} target="_blank" rel="noopener noreferrer">
+                    <Button size="lg" className="w-full font-black shadow-neon">
+                      <ExternalLink className="w-4 h-4" />
+                      Pagar com cartão no PagBank
+                    </Button>
+                  </a>
+                ) : (
+                  <div className="bg-surface rounded-xl p-4 border border-border text-center space-y-2">
+                    <CreditCard className="w-8 h-8 text-primary/40 mx-auto" />
+                    <p className="text-sm text-muted">
+                      O pagamento via cartão estará disponível após configurar o token PagBank.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-2">
+              <Link href={`/pedidos`} className="flex-1">
+                <Button variant="outline" size="md" className="w-full">
+                  Ver meus pedidos
+                </Button>
+              </Link>
+              <Link href={`/pedidos/${orderId}/tracking`} className="flex-1">
+                <Button size="md" className="w-full">
+                  Acompanhar entrega
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0 && !orderId) {
     return (
@@ -173,7 +378,6 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form */}
           <div className="lg:col-span-2">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <AnimatePresence mode="wait">
@@ -222,14 +426,15 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
                       </button>
                     </div>
 
-                    {/* Store picker for pickup */}
                     {deliveryType === "pickup" && stores.length > 0 && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         className="space-y-2"
                       >
-                        <p className="text-xs font-semibold text-muted uppercase tracking-wider">Escolha a loja para retirada</p>
+                        <p className="text-xs font-semibold text-muted uppercase tracking-wider">
+                          Escolha a loja para retirada
+                        </p>
                         {stores.map((store) => (
                           <button
                             key={store.id}
@@ -245,7 +450,9 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
                               {selectedStoreId === store.id && <div className="w-2 h-2 rounded-full bg-primary" />}
                             </div>
                             <div className="min-w-0">
-                              <p className={`text-sm font-bold ${selectedStoreId === store.id ? "text-primary" : "text-foreground"}`}>{store.name}</p>
+                              <p className={`text-sm font-bold ${selectedStoreId === store.id ? "text-primary" : "text-foreground"}`}>
+                                {store.name}
+                              </p>
                               {store.address && (
                                 <p className="text-xs text-muted mt-0.5 flex items-center gap-1">
                                   <MapPin className="w-3 h-3 flex-shrink-0" />{store.address}
@@ -259,9 +466,6 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
                             </div>
                           </button>
                         ))}
-                        {!selectedStoreId && (
-                          <p className="text-xs text-danger">Selecione uma loja para continuar.</p>
-                        )}
                       </motion.div>
                     )}
 
@@ -350,10 +554,6 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
                         </button>
                       ))}
                     </div>
-
-                    <p className="text-xs text-muted text-center">
-                      Você será redirecionado para o ambiente seguro do PagBank após confirmar.
-                    </p>
                   </motion.div>
                 )}
 
@@ -378,8 +578,12 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
                           className="flex items-center justify-between py-2 border-b border-border last:border-0"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center">
-                              <Package className="w-5 h-5 text-muted/50" />
+                            <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center overflow-hidden">
+                              {item.image_url ? (
+                                <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <Package className="w-5 h-5 text-muted/50" />
+                              )}
                             </div>
                             <div>
                               <p className="text-sm font-bold text-foreground">{item.name}</p>
@@ -414,13 +618,19 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
                       <span className="text-muted">creditados após pagamento</span>
                     </div>
 
-                    <div className="bg-surface rounded-xl p-3 text-xs text-muted">
-                      <strong className="text-foreground">Entrega:</strong>{" "}
-                      {deliveryType === "pickup"
-                        ? selectedStore
-                          ? `Retirada em ${selectedStore.name}${selectedStore.address ? ` — ${selectedStore.address}` : ""}`
-                          : "Retirada na loja"
-                        : `${getValues("address") || "Endereço informado"} · ${getValues("city") || ""}`}
+                    <div className="bg-surface rounded-xl p-3 text-xs text-muted space-y-1">
+                      <p>
+                        <strong className="text-foreground">Entrega:</strong>{" "}
+                        {deliveryType === "pickup"
+                          ? selectedStore
+                            ? `Retirada em ${selectedStore.name}`
+                            : "Retirada na loja"
+                          : `${getValues("address") || "Endereço informado"}`}
+                      </p>
+                      <p>
+                        <strong className="text-foreground">Pagamento:</strong>{" "}
+                        {paymentMethod === "pix" ? "PIX" : paymentMethod === "boleto" ? "Boleto" : "Cartão de crédito"}
+                      </p>
                     </div>
                   </motion.div>
                 )}
@@ -465,14 +675,18 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
             </form>
           </div>
 
-          {/* Order summary sticky */}
+          {/* Order summary */}
           <div className="lg:col-span-1">
             <div className="glass rounded-2xl p-5 border border-border space-y-4 sticky top-24">
               <h3 className="font-bold text-foreground">Resumo do pedido</h3>
               {items.slice(0, 4).map((item) => (
                 <div key={item.id} className="flex gap-3 items-center">
-                  <div className="w-12 h-12 rounded-xl bg-surface-secondary flex items-center justify-center flex-shrink-0">
-                    <Package className="w-6 h-6 text-muted/40" />
+                  <div className="w-12 h-12 rounded-xl bg-surface-secondary flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-6 h-6 text-muted/40" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground line-clamp-1">{item.name}</p>
