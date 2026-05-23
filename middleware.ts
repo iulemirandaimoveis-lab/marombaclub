@@ -25,9 +25,10 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  // getUser() validates JWT server-side — more reliable than getSession()
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
@@ -37,7 +38,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith(p)
   );
 
-  if (isCustomerProtected && !session) {
+  if (isCustomerProtected && !user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
@@ -45,7 +46,7 @@ export async function middleware(request: NextRequest) {
 
   // Admin RBAC: check role from profiles table
   if (pathname.startsWith("/admin")) {
-    if (!session) {
+    if (!user) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
@@ -54,18 +55,18 @@ export async function middleware(request: NextRequest) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .single();
 
     const adminRoles = ["admin_global", "store_manager", "seller"];
     if (!profile || !adminRoles.includes(profile.role)) {
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/login?redirect=" + encodeURIComponent(pathname), request.url));
     }
   }
 
   // Entregador RBAC
   if (pathname.startsWith("/entregador")) {
-    if (!session) {
+    if (!user) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
@@ -74,7 +75,7 @@ export async function middleware(request: NextRequest) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .single();
 
     if (!profile || profile.role !== "entregador") {
