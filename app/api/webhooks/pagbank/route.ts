@@ -33,7 +33,7 @@ async function creditLoyaltyPoints(
   // Record in ledger
   await supabase.from("loyalty_points_ledger").insert({
     customer_id: customerId,
-    entry_type: "COMPRA",
+    entry_type: "CREDITO_COMPRA",
     points,
     order_id: orderId,
     description: `Pedido #${orderId.slice(0, 8).toUpperCase()} pago`,
@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
     if (order?.customer_id && order.points_earned > 0) {
       await supabase.from("loyalty_points_ledger").insert({
         customer_id: order.customer_id,
-        entry_type: "ESTORNO",
+        entry_type: "ESTORNO",  // added to constraint
         points: -order.points_earned,
         order_id: referenceId,
         description: `Estorno pedido #${referenceId.slice(0, 8).toUpperCase()}`,
