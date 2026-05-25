@@ -3,16 +3,15 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  MapPin, Package, CheckCircle, Truck, Clock, Phone,
-  Navigation, Zap, LogOut, ChevronRight, RefreshCw,
-  User, AlertCircle, Wifi, WifiOff, DollarSign, BarChart3,
-  ArrowRight, Camera, X, Map, Star, Bell,
+  MapPin, Package, CheckCircle, Clock, Phone,
+  Navigation, Zap, ChevronRight, RefreshCw,
+  User, AlertCircle, Wifi, WifiOff,
+  Map, Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { signOut } from "@/lib/supabase/auth";
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string; next?: string; nextLabel?: string }> = {
   PAGO: { label: "Aguardando separação", color: "text-yellow-400", bg: "bg-yellow-500/10", next: "EM_SEPARACAO", nextLabel: "Iniciar separação" },
@@ -159,56 +158,31 @@ export function EntregadorV2({ profile, orders: initialOrders }: { profile: Prof
   const deliveredOrders = orders.filter(o => o.status === "ENTREGUE");
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center">
-              <Truck className="w-4 h-4 text-background" />
-            </div>
-            <div>
-              <p className="text-sm font-black text-foreground leading-none">
-                MAROMBA<span className="text-primary">CLUB</span>
-              </p>
-              <p className="text-[10px] text-muted">Entregador</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleOnline}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                isOnline
-                  ? "bg-primary/20 text-primary border border-primary/30"
-                  : "bg-surface text-muted border border-border"
-              }`}
-            >
-              {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-              {isOnline ? "Online" : "Offline"}
-            </button>
-            <button
-              onClick={async () => { await signOut(); window.location.href = "/"; }}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-danger transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
+    <div className="max-w-lg mx-auto px-4 py-5 space-y-5">
+      {/* Driver greeting + online toggle */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs text-muted">Bem-vindo de volta,</p>
+          <p className="text-lg font-black text-foreground">{profile.name}</p>
         </div>
-      </header>
-
-      <div className="max-w-lg mx-auto px-4 py-5 space-y-5">
-        {/* Driver greeting */}
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-muted">Bem-vindo de volta,</p>
-            <p className="text-lg font-black text-foreground">{profile.name}</p>
-          </div>
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 text-yellow-400">
             <Star className="w-4 h-4 fill-yellow-400" />
             <span className="text-sm font-bold">{driverStats.rating}</span>
           </div>
+          <button
+            onClick={toggleOnline}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+              isOnline
+                ? "bg-primary/20 text-primary border border-primary/30"
+                : "bg-surface text-muted border border-border"
+            }`}
+          >
+            {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+            {isOnline ? "Online" : "Offline"}
+          </button>
         </div>
+      </div>
 
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3">
@@ -363,7 +337,6 @@ export function EntregadorV2({ profile, orders: initialOrders }: { profile: Prof
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
     </div>
   );
 }

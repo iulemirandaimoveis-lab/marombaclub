@@ -55,10 +55,12 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           .select("role")
           .eq("id", result.user!.id)
           .single() as { data: { role: string } | null };
-        const adminRoles = ["admin_global", "store_manager", "seller"];
+        const adminRoles = ["admin_global", "store_manager", "seller", "financeiro", "estoque"];
         const redirect = new URLSearchParams(window.location.search).get("redirect");
-        if (profile && adminRoles.includes(profile.role)) {
-          window.location.href = "/admin";
+        if (profile?.role === "entregador") {
+          window.location.href = redirect ?? "/entregador/dashboard";
+        } else if (profile && adminRoles.includes(profile.role)) {
+          window.location.href = redirect ?? "/admin";
         } else {
           window.location.href = redirect ?? "/";
         }
