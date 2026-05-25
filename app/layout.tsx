@@ -2,9 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Inter, Anton } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { BottomNav } from "@/components/layout/bottom-nav";
+import { ClientLayoutWrapper } from "@/components/layout/ClientLayoutWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -45,10 +43,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${anton.variable}`}>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <Header />
-        <main className="pb-16 md:pb-0">{children}</main>
-        <Footer />
-        <BottomNav />
+        <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
       </body>
     </html>
   );

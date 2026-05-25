@@ -25,14 +25,39 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // getUser() validates JWT server-side — more reliable than getSession()
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
-  // Redirect unauthenticated users from protected paths
+  // Public login pages — skip all RBAC checks
+  if (
+    pathname === "/admin/login" ||
+    pathname === "/entregador/login"
+  ) {
+    // If already authenticated, redirect to the correct dashboard
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (profile) {
+        const adminRoles = ["admin_global", "store_manager", "seller", "financeiro", "estoque"];
+        if (pathname === "/admin/login" && adminRoles.includes(profile.role)) {
+          return NextResponse.redirect(new URL("/admin", request.url));
+        }
+        if (pathname === "/entregador/login" && profile.role === "entregador") {
+          return NextResponse.redirect(new URL("/entregador/dashboard", request.url));
+        }
+      }
+    }
+    return response;
+  }
+
+  // Customer protected routes
   const customerProtected = ["/checkout", "/perfil", "/pedidos"];
   const isCustomerProtected = customerProtected.some((p) =>
     pathname.startsWith(p)
@@ -44,12 +69,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Admin RBAC: check role from profiles table
+  // Admin RBAC
   if (pathname.startsWith("/admin")) {
     if (!user) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
 
     const { data: profile } = await supabase
@@ -67,9 +90,7 @@ export async function middleware(request: NextRequest) {
   // Entregador RBAC
   if (pathname.startsWith("/entregador")) {
     if (!user) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(new URL("/entregador/login", request.url));
     }
 
     const { data: profile } = await supabase
