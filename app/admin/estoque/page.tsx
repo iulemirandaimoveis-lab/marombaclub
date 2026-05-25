@@ -1,13 +1,30 @@
 import type { Metadata } from "next";
-import { getInventory, getInventoryMovements } from "@/lib/data/admin";
-import { AdminInventoryClient } from "@/components/admin/pages/inventory-client";
+import { createAdminClient } from "@/lib/supabase/server";
+import { InventoryBalances } from "@/components/admin/pages/inventory-balances";
 
 export const metadata: Metadata = { title: "Admin — Estoque" };
+export const dynamic = "force-dynamic";
+
+async function getInventoryBalances() {
+  try {
+    const supabase = await createAdminClient();
+    const { data } = await supabase
+      .from("inventory_balances")
+      .select(`
+        id, product_id, location_id,
+        quantity_available, quantity_reserved, quantity_minimum, quantity_in_transit,
+        updated_at,
+        product:products(name, brand, image_url, sku),
+        location:inventory_locations(name, type, store:stores(name))
+      `)
+      .order("updated_at", { ascending: false });
+    return (data ?? []) as any[];
+  } catch {
+    return [];
+  }
+}
 
 export default async function AdminInventoryPage() {
-  const [inventory, movements] = await Promise.all([
-    getInventory(),
-    getInventoryMovements(50),
-  ]);
-  return <AdminInventoryClient inventory={inventory} movements={movements} />;
+  const balances = await getInventoryBalances();
+  return <InventoryBalances balances={balances} />;
 }

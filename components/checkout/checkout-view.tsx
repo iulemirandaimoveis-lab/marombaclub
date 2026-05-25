@@ -38,10 +38,12 @@ const STEPS = [
 
 type PaymentResult = {
   pix_qr_code_text?: string;
+  pix_copy_paste?: string;
   pix_qr_code?: string;
   boleto_barcode?: string;
   payment_url?: string;
   demo?: boolean;
+  status?: string;
 };
 
 function PixDisplay({ qrText, qrImg, demo }: { qrText?: string; qrImg?: string; demo?: boolean }) {
@@ -210,13 +212,13 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
       setOrderId(newOrderId);
       clearCart();
 
-      // 2. Create PagBank charge
-      const chargeRes = await fetch("/api/pagbank/create-charge", {
+      // 2. Create payment (abstract layer — supports PagBank, MercadoPago, Pagar.me)
+      const chargeRes = await fetch("/api/payments/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           order_id: newOrderId,
-          payment_method: paymentMethod,
+          method: paymentMethod === "boleto" ? "pix" : paymentMethod,
         }),
       });
 
@@ -262,7 +264,7 @@ export function CheckoutView({ stores = [] }: { stores?: StoreOption[] }) {
 
             {paymentMethod === "pix" && (
               <PixDisplay
-                qrText={paymentResult.pix_qr_code_text}
+                qrText={paymentResult.pix_copy_paste ?? paymentResult.pix_qr_code_text}
                 qrImg={paymentResult.pix_qr_code ?? undefined}
                 demo={paymentResult.demo}
               />
