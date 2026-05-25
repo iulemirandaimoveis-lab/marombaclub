@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
         .eq("id", payment.order_id)
         .single();
 
-      if (order && order.points_earned > 0) {
+      if (order && order.points_earned > 0 && order.customer_id) {
         await supabase.from("loyalty_points_ledger").insert({
           customer_id: order.customer_id,
           entry_type: "CREDITO_COMPRA",

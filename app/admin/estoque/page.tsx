@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 async function getInventoryBalances() {
   try {
     const supabase = await createAdminClient();
-    const { data } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
       .from("inventory_balances")
       .select(`
         id, product_id, location_id,

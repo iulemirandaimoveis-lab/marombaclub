@@ -15,6 +15,28 @@ export async function toggleProductActive(id: string, isActive: boolean) {
   revalidatePath("/catalogo");
 }
 
+export async function toggleProductFeatured(id: string, isFeatured: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("products")
+    .update({ is_featured: isFeatured })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/produtos");
+  revalidatePath("/catalogo");
+}
+
+export async function toggleProductBestSeller(id: string, isBestSeller: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("products")
+    .update({ is_best_seller: isBestSeller })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/produtos");
+  revalidatePath("/catalogo");
+}
+
 export async function updateProduct(
   id: string,
   data: {

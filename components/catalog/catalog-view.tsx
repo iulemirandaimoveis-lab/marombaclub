@@ -1,95 +1,139 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Search, SlidersHorizontal, X, Star, ShoppingCart, Check, Package } from "lucide-react";
-import Link from "next/link";
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, SlidersHorizontal, X, TrendingUp, Star, Zap, Package, Target } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { formatCurrency } from "@/lib/utils";
-import { useCartStore } from "@/lib/store/cart";
+import { ProductCardPremium } from "@/components/catalog/product-card-premium";
+import { FloatingCartBar } from "@/components/catalog/floating-cart-bar";
 import type { Product } from "@/lib/data/products";
 
 const CATEGORIES = [
-  { label: "Todos", value: "" },
-  { label: "Proteínas", value: "proteinas" },
-  { label: "Creatina", value: "creatina" },
-  { label: "Pré-treino", value: "pre-treino" },
-  { label: "Aminoácidos", value: "aminoacidos" },
-  { label: "Vitaminas", value: "vitaminas" },
-  { label: "Queimadores", value: "queimadores" },
-  { label: "Hipercalórico", value: "hipercalorico" },
+  { label: "Todos",        value: "",             icon: "🏆" },
+  { label: "Proteínas",    value: "proteinas",    icon: "💪" },
+  { label: "Creatina",     value: "creatina",     icon: "⚡" },
+  { label: "Pré-treino",   value: "pre-treino",   icon: "🔥" },
+  { label: "Aminoácidos",  value: "aminoacidos",  icon: "🧬" },
+  { label: "Vitaminas",    value: "vitaminas",    icon: "🌿" },
+  { label: "Queimadores",  value: "queimadores",  icon: "💫" },
+  { label: "Hipercalórico",value: "hipercalorico",icon: "📈" },
 ];
+
+const GOAL_CHIPS = [
+  { label: "Massa muscular", icon: "💪", filter: "proteinas" },
+  { label: "Emagrecimento",  icon: "🔥", filter: "queimadores" },
+  { label: "Energia",        icon: "⚡", filter: "pre-treino" },
+  { label: "Saúde",          icon: "🌿", filter: "vitaminas" },
+  { label: "Performance",    icon: "🏆", filter: "creatina" },
+];
+
+type SortOption = "relevance" | "price_asc" | "price_desc" | "rating";
 
 export function CatalogView({ products }: { products: Product[] }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("");
-  const [sortBy, setSortBy] = useState<"relevance" | "price_asc" | "price_desc">("relevance");
+  const [sortBy, setSortBy] = useState<SortOption>("relevance");
+  const [showFilters, setShowFilters] = useState(false);
 
-  const filtered = products
-    .filter((p) => {
-      const matchesSearch =
-        !search ||
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.brand.toLowerCase().includes(search.toLowerCase());
-      const matchesCategory =
-        !activeCategory || p.category?.slug === activeCategory;
-      return matchesSearch && matchesCategory;
-    })
-    .sort((a, b) => {
-      if (sortBy === "price_asc") return a.price_cents - b.price_cents;
-      if (sortBy === "price_desc") return b.price_cents - a.price_cents;
-      return 0;
-    });
+  const bestSellers = useMemo(() => products.filter((p) => p.is_best_seller), [products]);
+  const featured = useMemo(() => products.filter((p) => p.is_featured && !p.is_best_seller), [products]);
+
+  const filtered = useMemo(() =>
+    products
+      .filter((p) => {
+        const q = search.toLowerCase();
+        const matchesSearch = !search || p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
+        const matchesCategory = !activeCategory || p.category?.slug === activeCategory;
+        return matchesSearch && matchesCategory;
+      })
+      .sort((a, b) => {
+        if (sortBy === "price_asc") return a.price_cents - b.price_cents;
+        if (sortBy === "price_desc") return b.price_cents - a.price_cents;
+        if (sortBy === "rating") return b.rating_average - a.rating_average;
+        // relevance: best sellers first, then featured
+        const aScore = (a.is_best_seller ? 2 : 0) + (a.is_featured ? 1 : 0);
+        const bScore = (b.is_best_seller ? 2 : 0) + (b.is_featured ? 1 : 0);
+        return bScore - aScore;
+      }),
+    [products, search, activeCategory, sortBy]
+  );
+
+  const isFiltering = !!search || !!activeCategory;
 
   return (
-    <div className="min-h-screen pt-20">
-      {/* Header */}
-      <div className="bg-surface border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="font-display text-4xl sm:text-5xl text-foreground mb-6 tracking-wide">
-            CATÁLOGO DE SUPLEMENTOS
-          </h1>
+    <div className="min-h-screen" style={{ paddingTop: "80px" }}>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+      {/* Fixed search header */}
+      <div className="sticky top-[64px] z-20 bg-background/95 backdrop-blur-xl border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Title + search row */}
+          <div className="flex items-center gap-3 py-3">
             <div className="flex-1">
               <Input
                 icon={<Search className="w-4 h-4" />}
-                placeholder="Buscar por nome ou marca..."
+                placeholder="Buscar suplemento ou marca..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-11"
+                className="h-10 text-sm"
               />
             </div>
-            <div className="flex gap-2">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="h-11 px-4 rounded-xl bg-surface border border-border text-sm text-foreground focus:outline-none focus:border-primary/60 cursor-pointer"
-              >
-                <option value="relevance">Relevância</option>
-                <option value="price_asc">Menor preço</option>
-                <option value="price_desc">Maior preço</option>
-              </select>
-              <Button variant="surface" size="md" className="gap-2">
-                <SlidersHorizontal className="w-4 h-4" />
-                Filtros
-              </Button>
-            </div>
+            <Button
+              variant={showFilters ? "default" : "surface"}
+              size="md"
+              className="gap-1.5 flex-shrink-0 h-10 px-3"
+              onClick={() => setShowFilters((f) => !f)}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm">Filtros</span>
+            </Button>
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-4">
+          {/* Filters panel */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                style={{ overflow: "hidden" }}
+              >
+                <div className="pb-3 flex items-center gap-3 flex-wrap">
+                  <span className="text-xs text-muted font-medium">Ordenar:</span>
+                  {([
+                    { value: "relevance", label: "Relevância" },
+                    { value: "price_asc", label: "Menor preço" },
+                    { value: "price_desc", label: "Maior preço" },
+                    { value: "rating", label: "Mais avaliados" },
+                  ] as { value: SortOption; label: string }[]).map((opt) => (
+                    <button key={opt.value} onClick={() => setSortBy(opt.value)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        sortBy === opt.value
+                          ? "bg-primary text-white shadow-neon-sm"
+                          : "bg-surface border border-border text-muted hover:text-foreground"
+                      }`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Category pills */}
+          <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.value}
                 onClick={() => setActiveCategory(cat.value)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                className={`flex-shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
                   activeCategory === cat.value
                     ? "bg-primary text-white shadow-neon-sm"
-                    : "bg-surface-secondary text-muted hover:text-foreground border border-border"
+                    : "bg-surface border border-border text-muted hover:text-foreground hover:border-primary/30"
                 }`}
               >
+                <span>{cat.icon}</span>
                 {cat.label}
               </button>
             ))}
@@ -97,141 +141,121 @@ export function CatalogView({ products }: { products: Product[] }) {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-muted text-sm">
-            {filtered.length} produto{filtered.length !== 1 ? "s" : ""}
-            {search && <span> para &quot;{search}&quot;</span>}
-          </p>
-          {(search || activeCategory) && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => { setSearch(""); setActiveCategory(""); }}
-              className="text-muted"
-            >
-              <X className="w-3.5 h-3.5" />
-              Limpar filtros
-            </Button>
-          )}
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <motion.div
-          layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
-        >
-          {filtered.map((product, i) => (
-            <motion.div
-              key={product.id}
-              layout
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: i * 0.04 }}
-            >
-              <CatalogProductCard product={product} />
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {filtered.length === 0 && (
-          <div className="text-center py-24">
-            <div className="text-6xl mb-4">🔍</div>
-            <p className="text-foreground font-bold text-xl mb-2">Nenhum produto encontrado</p>
-            <p className="text-muted">
-              {products.length === 0
-                ? "Configure as variáveis do Supabase para carregar os produtos."
-                : "Tente outros termos de busca ou limpe os filtros."}
+        {/* Goal chips */}
+        {!isFiltering && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="py-5"
+          >
+            <p className="text-xs text-muted font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <Target className="w-3.5 h-3.5" /> Seu objetivo
             </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function CatalogProductCard({ product }: { product: Product }) {
-  const [added, setAdded] = useState(false);
-  const addItem = useCartStore((s) => s.addItem);
-  const discount = product.old_price_cents
-    ? Math.round(((product.old_price_cents - product.price_cents) / product.old_price_cents) * 100)
-    : null;
-
-  function handleAddToCart(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    addItem({
-      id: product.id,
-      name: product.name,
-      brand: product.brand,
-      price_cents: product.price_cents,
-      image_url: product.image_url,
-      flavor: product.flavor ?? null,
-      quantity: 1,
-    });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
-  }
-
-  return (
-    <Link href={`/produto/${product.slug}`}>
-      <div className="group relative glass rounded-2xl overflow-hidden card-hover border border-transparent hover:border-primary/15 h-full">
-        <div className="relative h-44 bg-gradient-to-br from-surface-secondary to-surface flex items-center justify-center">
-          {product.image_url ? (
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <Package className="w-12 h-12 text-muted/40 transition-transform duration-500 group-hover:scale-110" />
-          )}
-          <div className="absolute top-3 left-3 flex flex-col gap-1">
-            {discount && (
-              <Badge variant="danger" className="text-[11px] font-bold">-{discount}%</Badge>
-            )}
-            {product.is_club_exclusive && (
-              <Badge variant="primary" className="text-[11px] font-bold">Clube</Badge>
-            )}
-          </div>
-        </div>
-
-        <div className="p-4">
-          <p className="text-xs text-muted font-medium mb-0.5">{product.brand}</p>
-          <h3 className="font-bold text-foreground text-sm line-clamp-1 mb-0.5">{product.name}</h3>
-          <p className="text-xs text-muted/70 mb-2">{product.weight_volume}</p>
-
-          <div className="flex items-center gap-1 mb-3">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3 h-3 fill-primary text-primary" />
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              {GOAL_CHIPS.map((chip) => (
+                <button
+                  key={chip.label}
+                  onClick={() => setActiveCategory(chip.filter)}
+                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl glass border border-border text-sm font-medium text-foreground hover:border-primary/40 hover:shadow-neon-sm transition-all duration-200 active:scale-95"
+                >
+                  <span className="text-base">{chip.icon}</span>
+                  {chip.label}
+                </button>
               ))}
             </div>
+          </motion.div>
+        )}
+
+        {/* Best sellers section */}
+        {!isFiltering && bestSellers.length > 0 && (
+          <section className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <h2 className="font-display text-xl text-foreground tracking-wide">MAIS VENDIDOS</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {bestSellers.slice(0, 4).map((p, i) => (
+                <ProductCardPremium key={p.id} product={p} index={i} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Featured / Recommended section */}
+        {!isFiltering && featured.length > 0 && (
+          <section className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Star className="w-4 h-4 text-primary" />
+              <h2 className="font-display text-xl text-foreground tracking-wide">RECOMENDADOS PARA VOCÊ</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {featured.slice(0, 4).map((p, i) => (
+                <ProductCardPremium key={p.id} product={p} index={i} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Main product grid */}
+        <section className="pb-28">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Package className="w-4 h-4 text-muted" />
+              <h2 className="font-display text-xl text-foreground tracking-wide">
+                {isFiltering ? "RESULTADOS" : "TODOS OS PRODUTOS"}
+              </h2>
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-muted">
+                {filtered.length} produto{filtered.length !== 1 ? "s" : ""}
+                {search && <span className="ml-1">para &ldquo;{search}&rdquo;</span>}
+              </p>
+              {isFiltering && (
+                <button
+                  onClick={() => { setSearch(""); setActiveCategory(""); }}
+                  className="flex items-center gap-1 text-xs text-muted hover:text-foreground transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" /> Limpar
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-end justify-between">
-            <div>
-              {product.old_price_cents && (
-                <p className="text-xs text-muted line-through">{formatCurrency(product.old_price_cents)}</p>
-              )}
-              <p className="text-lg font-black text-foreground">{formatCurrency(product.price_cents)}</p>
-              <p className="text-xs text-primary font-bold">+{product.points_per_unit} pts</p>
-            </div>
-            <Button
-              size="icon-sm"
-              className="opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-neon-sm"
-              onClick={handleAddToCart}
-              disabled={added}
-              title="Adicionar ao carrinho"
+          {filtered.length > 0 ? (
+            <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              <AnimatePresence>
+                {filtered.map((p, i) => (
+                  <ProductCardPremium key={p.id} product={p} index={i} />
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-20"
             >
-              {added ? (
-                <Check className="w-3.5 h-3.5" />
-              ) : (
-                <ShoppingCart className="w-3.5 h-3.5" />
+              <div className="text-5xl mb-4">🔍</div>
+              <p className="font-display text-2xl text-foreground tracking-wide mb-2">NADA ENCONTRADO</p>
+              <p className="text-muted text-sm mb-6">
+                {products.length === 0
+                  ? "Configure as variáveis do Supabase para carregar os produtos."
+                  : "Tente outros termos ou explore as categorias."}
+              </p>
+              {isFiltering && (
+                <Button variant="surface" onClick={() => { setSearch(""); setActiveCategory(""); }}>
+                  Ver todos os produtos
+                </Button>
               )}
-            </Button>
-          </div>
-        </div>
+            </motion.div>
+          )}
+        </section>
       </div>
-    </Link>
+
+      <FloatingCartBar />
+    </div>
   );
 }

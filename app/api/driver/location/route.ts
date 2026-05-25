@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
           driver_lng: longitude,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", (await supabase.from("deliveries").select("order_id").eq("id", delivery_id).single()).data?.order_id);
+        .eq("id", (await supabase.from("deliveries").select("order_id").eq("id", delivery_id!).single()).data?.order_id ?? "");
     }
   }
 

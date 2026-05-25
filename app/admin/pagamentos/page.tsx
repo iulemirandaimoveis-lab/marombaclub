@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 async function getPayments() {
   try {
     const supabase = await createAdminClient();
-    const { data } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
       .from("payments")
       .select(`
         id, order_id, provider, method, status, amount_cents,
