@@ -16,6 +16,7 @@ import { slugify } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRichFields, ProductRichFields } from "@/components/admin/product-rich-fields";
 
 const schema = z.object({
   name: z.string().min(2, "Nome deve ter ao menos 2 caracteres"),
@@ -45,6 +46,19 @@ export function EditProductClient({ product, categories }: { product: any; categ
   const [flavorInput, setFlavorInput] = useState("");
   const [sizeInput, setSizeInput] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [richFields, patchRich] = useRichFields({
+    short_promise: product.short_promise ?? "",
+    is_featured: product.is_featured ?? false,
+    is_best_seller: product.is_best_seller ?? false,
+    benefits: product.benefits ?? [],
+    nutrition_facts: product.nutrition_facts ?? {},
+    ingredients: product.ingredients ?? "",
+    allergens: product.allergens ?? [],
+    how_to_use: product.how_to_use ?? {},
+    warnings: product.warnings ?? "",
+    certifications: product.certifications ?? [],
+    faq: product.faq ?? [],
+  });
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -123,6 +137,18 @@ export function EditProductClient({ product, categories }: { product: any; categ
         image_url: values.image_url?.trim() || null,
         is_active: values.is_active,
         is_club_exclusive: values.is_club_exclusive,
+        // Rich premium fields
+        short_promise: richFields.short_promise.trim() || null,
+        is_featured: richFields.is_featured,
+        is_best_seller: richFields.is_best_seller,
+        benefits: richFields.benefits.length > 0 ? richFields.benefits : null,
+        nutrition_facts: Object.keys(richFields.nutrition_facts).length > 0 ? richFields.nutrition_facts : null,
+        ingredients: richFields.ingredients.trim() || null,
+        allergens: richFields.allergens.length > 0 ? richFields.allergens : null,
+        how_to_use: Object.keys(richFields.how_to_use).length > 0 ? richFields.how_to_use : null,
+        warnings: richFields.warnings.trim() || null,
+        certifications: richFields.certifications.length > 0 ? richFields.certifications : null,
+        faq: richFields.faq.length > 0 ? richFields.faq : null,
       });
       setSubmitState("success");
     } catch (err: unknown) {
@@ -394,6 +420,9 @@ export function EditProductClient({ product, categories }: { product: any; categ
             </div>
           </CardContent>
         </Card>
+
+        {/* Rich premium fields */}
+        <ProductRichFields state={richFields} patch={patchRich} />
 
         <AnimatePresence>
           {submitState === "error" && (
