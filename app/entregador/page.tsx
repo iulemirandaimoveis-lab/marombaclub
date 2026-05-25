@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { EntregadorClient } from "@/components/entregador/entregador-client";
+import { EntregadorV2 } from "@/components/entregador/entregador-v2";
 
 export const dynamic = "force-dynamic";
 
@@ -41,8 +41,8 @@ export default async function EntregadorPage() {
     .limit(50);
 
   return (
-    <EntregadorClient
-      profile={{ id: profile.id, name: profile.name ?? "Entregador" }}
+    <EntregadorV2
+      profile={{ id: profile.id, name: profile.name ?? "Entregador", role: profile.role }}
       orders={(orders ?? []) as any}
     />
   );

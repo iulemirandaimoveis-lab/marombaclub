@@ -23,6 +23,8 @@ import {
   X,
   ArrowRightLeft,
   DollarSign,
+  MapPin,
+  Truck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -32,6 +34,7 @@ const NAV = [
   { href: "/admin/produtos", label: "Produtos", icon: Package },
   { href: "/admin/estoque", label: "Estoque", icon: Warehouse },
   { href: "/admin/lojas", label: "Lojas", icon: Store },
+  { href: "/admin/pontos-retirada", label: "Pontos Retirada", icon: MapPin },
   { href: "/admin/transferencias", label: "Transferências", icon: ArrowRightLeft },
   { href: "/admin/vendas", label: "Vendas", icon: ShoppingBag },
   { href: "/admin/comissoes", label: "Comissões", icon: DollarSign },

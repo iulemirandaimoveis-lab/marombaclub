@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    const adminRoles = ["admin_global", "store_manager", "seller"];
+    const adminRoles = ["admin_global", "store_manager", "seller", "financeiro", "estoque"];
     if (!profile || !adminRoles.includes(profile.role)) {
       return NextResponse.redirect(new URL("/", request.url));
     }
@@ -78,7 +78,8 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (!profile || profile.role !== "entregador") {
+    const driverRoles = ["entregador", "admin_global", "store_manager"];
+    if (!profile || !driverRoles.includes(profile.role)) {
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
