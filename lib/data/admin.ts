@@ -29,6 +29,11 @@ export type AdminProduct = {
   cost_cents: number | null;
   is_active: boolean;
   is_club_exclusive: boolean;
+  is_featured: boolean;
+  is_best_seller: boolean;
+  rating_average: number;
+  rating_count: number;
+  short_promise: string | null;
   image_url: string | null;
   category: { name: string; slug: string } | null;
   total_inventory: number;
@@ -208,7 +213,8 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
       .from("products")
       .select(`
         id, name, slug, brand, price_cents, cost_cents,
-        is_active, is_club_exclusive, image_url,
+        is_active, is_club_exclusive, is_featured, is_best_seller,
+        rating_average, rating_count, short_promise, image_url,
         category:product_categories(name, slug),
         inventory(quantity)
       `)
@@ -226,6 +232,11 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
       cost_cents: p.cost_cents,
       is_active: p.is_active,
       is_club_exclusive: p.is_club_exclusive,
+      is_featured: Boolean(p.is_featured),
+      is_best_seller: Boolean(p.is_best_seller),
+      rating_average: p.rating_average ?? 0,
+      rating_count: p.rating_count ?? 0,
+      short_promise: p.short_promise ?? null,
       image_url: p.image_url,
       category: p.category,
       total_inventory:

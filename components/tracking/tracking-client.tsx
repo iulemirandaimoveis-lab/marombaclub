@@ -131,6 +131,7 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
     async function initMap() {
       try {
         L = (await import("leaflet")).default;
+        // @ts-expect-error leaflet css import
         await import("leaflet/dist/leaflet.css");
 
         if (!mapContainerRef.current) return;

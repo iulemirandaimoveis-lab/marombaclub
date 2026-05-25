@@ -14,6 +14,8 @@ import {
   Star,
   ImageOff,
   Loader2,
+  TrendingUp,
+  Sparkles,
 } from "lucide-react";
 import type { AdminProduct } from "@/lib/data/admin";
 import { formatCurrency } from "@/lib/utils";
@@ -21,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toggleProductActive } from "@/app/actions/products";
+import { toggleProductActive, toggleProductFeatured, toggleProductBestSeller } from "@/app/actions/products";
 
 interface AdminProductsClientProps {
   products: AdminProduct[];
@@ -313,6 +315,18 @@ function ProductRow({ product, index, onToggleActive }: ProductRowProps) {
               </>
             )}
           </Badge>
+          {product.is_best_seller && (
+            <Badge variant="primary">
+              <TrendingUp className="w-3 h-3" />
+              Mais Vendido
+            </Badge>
+          )}
+          {product.is_featured && (
+            <Badge variant="primary">
+              <Sparkles className="w-3 h-3" />
+              Destaque
+            </Badge>
+          )}
           {product.is_club_exclusive && (
             <Badge variant="warning">
               <Star className="w-3 h-3" />
@@ -325,6 +339,24 @@ function ProductRow({ product, index, onToggleActive }: ProductRowProps) {
       {/* Actions */}
       <td className="px-6 py-3">
         <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            title={product.is_featured ? "Remover destaque" : "Marcar como destaque"}
+            disabled={isPending}
+            onClick={() => startTransition(() => toggleProductFeatured(product.id, !product.is_featured))}
+          >
+            <Sparkles className={`w-4 h-4 ${product.is_featured ? "text-primary" : "text-muted"}`} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            title={product.is_best_seller ? "Remover mais vendido" : "Marcar como mais vendido"}
+            disabled={isPending}
+            onClick={() => startTransition(() => toggleProductBestSeller(product.id, !product.is_best_seller))}
+          >
+            <TrendingUp className={`w-4 h-4 ${product.is_best_seller ? "text-primary" : "text-muted"}`} />
+          </Button>
           <Button
             variant="ghost"
             size="icon-sm"

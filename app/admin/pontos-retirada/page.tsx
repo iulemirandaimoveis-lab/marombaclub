@@ -10,7 +10,8 @@ async function getData() {
     const supabase = await createAdminClient();
     const [storesRes, pointsRes] = await Promise.all([
       supabase.from("stores").select("id, name").eq("is_active", true).order("name"),
-      supabase.from("pickup_points").select(`
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).from("pickup_points").select(`
         id, store_id, name, address_line, address_number, district,
         city, state, zipcode, latitude, longitude, instructions, active,
         store:stores(name)

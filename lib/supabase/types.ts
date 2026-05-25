@@ -580,6 +580,7 @@ export type Database = {
           pagbank_order_id: string | null
           payment_id: string | null
           payment_method: string | null
+          payment_provider: string | null
           payment_status: string
           payment_url: string | null
           pix_qr_code: string | null
@@ -644,6 +645,7 @@ export type Database = {
           pagbank_order_id?: string | null
           payment_id?: string | null
           payment_method?: string | null
+          payment_provider?: string | null
           payment_status?: string
           payment_url?: string | null
           pix_qr_code?: string | null
@@ -802,6 +804,22 @@ export type Database = {
           unit: string | null
           updated_at: string
           weight_volume: string | null
+          hero_image_url: string | null
+          gallery_images: Json | null
+          video_urls: Json | null
+          short_promise: string | null
+          benefits: Json | null
+          nutrition_facts: Json | null
+          ingredients: string | null
+          allergens: string[] | null
+          how_to_use: Json | null
+          warnings: string | null
+          certifications: string[] | null
+          faq: Json | null
+          rating_average: number | null
+          rating_count: number | null
+          is_featured: boolean
+          is_best_seller: boolean
         }
         Insert: {
           barcode_ean?: string | null
@@ -828,6 +846,22 @@ export type Database = {
           unit?: string | null
           updated_at?: string
           weight_volume?: string | null
+          hero_image_url?: string | null
+          gallery_images?: Json | null
+          video_urls?: Json | null
+          short_promise?: string | null
+          benefits?: Json | null
+          nutrition_facts?: Json | null
+          ingredients?: string | null
+          allergens?: string[] | null
+          how_to_use?: Json | null
+          warnings?: string | null
+          certifications?: string[] | null
+          faq?: Json | null
+          rating_average?: number | null
+          rating_count?: number | null
+          is_featured?: boolean
+          is_best_seller?: boolean
         }
         Update: {
           barcode_ean?: string | null
@@ -854,6 +888,22 @@ export type Database = {
           unit?: string | null
           updated_at?: string
           weight_volume?: string | null
+          hero_image_url?: string | null
+          gallery_images?: Json | null
+          video_urls?: Json | null
+          short_promise?: string | null
+          benefits?: Json | null
+          nutrition_facts?: Json | null
+          ingredients?: string | null
+          allergens?: string[] | null
+          how_to_use?: Json | null
+          warnings?: string | null
+          certifications?: string[] | null
+          faq?: Json | null
+          rating_average?: number | null
+          rating_count?: number | null
+          is_featured?: boolean
+          is_best_seller?: boolean
         }
         Relationships: [
           {
@@ -995,6 +1045,453 @@ export type Database = {
           is_active?: boolean
           name?: string
           phone?: string | null
+        }
+        Relationships: []
+      }
+      deliveries: {
+        Row: {
+          id: string
+          order_id: string
+          driver_id: string | null
+          store_id: string | null
+          status: string
+          address: Json | null
+          notes: string | null
+          assigned_at: string | null
+          picked_at: string | null
+          delivered_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          order_id: string
+          driver_id?: string | null
+          store_id?: string | null
+          status?: string
+          address?: Json | null
+          notes?: string | null
+          assigned_at?: string | null
+          picked_at?: string | null
+          delivered_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          order_id?: string
+          driver_id?: string | null
+          store_id?: string | null
+          status?: string
+          address?: Json | null
+          notes?: string | null
+          assigned_at?: string | null
+          picked_at?: string | null
+          delivered_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      delivery_tracking_events: {
+        Row: {
+          id: string
+          delivery_id: string
+          driver_id: string | null
+          event_type: string
+          latitude: number | null
+          longitude: number | null
+          speed: number | null
+          heading: number | null
+          data: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          delivery_id: string
+          driver_id?: string | null
+          event_type: string
+          latitude?: number | null
+          longitude?: number | null
+          speed?: number | null
+          heading?: number | null
+          data?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          delivery_id?: string
+          driver_id?: string | null
+          event_type?: string
+          latitude?: number | null
+          longitude?: number | null
+          speed?: number | null
+          heading?: number | null
+          data?: Json | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      delivery_drivers: {
+        Row: {
+          id: string
+          user_id: string
+          store_id: string | null
+          name: string | null
+          phone: string | null
+          status: string
+          active: boolean
+          latitude: number | null
+          longitude: number | null
+          current_latitude: number | null
+          current_longitude: number | null
+          last_seen_at: string | null
+          last_location_at: string | null
+          updated_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          store_id?: string | null
+          name?: string | null
+          phone?: string | null
+          status?: string
+          active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          current_latitude?: number | null
+          current_longitude?: number | null
+          last_seen_at?: string | null
+          last_location_at?: string | null
+          updated_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          store_id?: string | null
+          name?: string | null
+          phone?: string | null
+          status?: string
+          active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          current_latitude?: number | null
+          current_longitude?: number | null
+          last_seen_at?: string | null
+          last_location_at?: string | null
+          updated_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      pickup_points: {
+        Row: {
+          id: string
+          store_id: string
+          name: string
+          address_line: string | null
+          address_number: string | null
+          district: string | null
+          city: string | null
+          state: string | null
+          zipcode: string | null
+          latitude: number | null
+          longitude: number | null
+          instructions: string | null
+          active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          store_id: string
+          name: string
+          address_line?: string | null
+          address_number?: string | null
+          district?: string | null
+          city?: string | null
+          state?: string | null
+          zipcode?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          instructions?: string | null
+          active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          store_id?: string
+          name?: string
+          address_line?: string | null
+          address_number?: string | null
+          district?: string | null
+          city?: string | null
+          state?: string | null
+          zipcode?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          instructions?: string | null
+          active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          id: string
+          order_id: string
+          customer_id: string | null
+          provider: string
+          method: string
+          status: string
+          amount_cents: number
+          provider_payment_id: string | null
+          pix_qr_code: string | null
+          pix_copy_paste: string | null
+          paid_at: string | null
+          failed_reason: string | null
+          metadata: Json | null
+          provider_order_id: string | null
+          idempotency_key: string | null
+          payment_url: string | null
+          expires_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          order_id: string
+          customer_id?: string | null
+          provider: string
+          method: string
+          status?: string
+          amount_cents: number
+          provider_payment_id?: string | null
+          pix_qr_code?: string | null
+          pix_copy_paste?: string | null
+          paid_at?: string | null
+          failed_reason?: string | null
+          metadata?: Json | null
+          provider_order_id?: string | null
+          idempotency_key?: string | null
+          payment_url?: string | null
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          order_id?: string
+          customer_id?: string | null
+          provider?: string
+          method?: string
+          status?: string
+          amount_cents?: number
+          provider_payment_id?: string | null
+          pix_qr_code?: string | null
+          pix_copy_paste?: string | null
+          paid_at?: string | null
+          failed_reason?: string | null
+          metadata?: Json | null
+          provider_order_id?: string | null
+          idempotency_key?: string | null
+          payment_url?: string | null
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_balances: {
+        Row: {
+          id: string
+          product_id: string
+          location_id: string
+          quantity_available: number
+          quantity_reserved: number
+          quantity_minimum: number
+          quantity_in_transit: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          location_id: string
+          quantity_available?: number
+          quantity_reserved?: number
+          quantity_minimum?: number
+          quantity_in_transit?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          location_id?: string
+          quantity_available?: number
+          quantity_reserved?: number
+          quantity_minimum?: number
+          quantity_in_transit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seller_commissions: {
+        Row: {
+          id: string
+          seller_id: string
+          order_id: string
+          order_item_id: string | null
+          product_id: string | null
+          amount_cents: number
+          rate: number
+          status: string
+          paid_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          order_id: string
+          order_item_id?: string | null
+          product_id?: string | null
+          amount_cents: number
+          rate: number
+          status?: string
+          paid_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          order_id?: string
+          order_item_id?: string | null
+          product_id?: string | null
+          amount_cents?: number
+          rate?: number
+          status?: string
+          paid_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      payment_providers: {
+        Row: {
+          id: string
+          store_id: string
+          provider: string
+          is_active: boolean
+          settings_json: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          store_id: string
+          provider: string
+          is_active?: boolean
+          settings_json?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          store_id?: string
+          provider?: string
+          is_active?: boolean
+          settings_json?: Json | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      payment_webhook_events: {
+        Row: {
+          id: string
+          provider: string
+          event_id: string | null
+          event_type: string | null
+          payload: Json
+          processed: boolean
+          processed_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          provider: string
+          event_id?: string | null
+          event_type?: string | null
+          payload: Json
+          processed?: boolean
+          processed_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          provider?: string
+          event_id?: string | null
+          event_type?: string | null
+          payload?: Json
+          processed?: boolean
+          processed_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      customer_payment_methods: {
+        Row: {
+          id: string
+          customer_id: string
+          provider: string
+          token: string
+          last4: string | null
+          brand: string | null
+          is_default: boolean
+          active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          customer_id: string
+          provider: string
+          token: string
+          last4?: string | null
+          brand?: string | null
+          is_default?: boolean
+          active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          customer_id?: string
+          provider?: string
+          token?: string
+          last4?: string | null
+          brand?: string | null
+          is_default?: boolean
+          active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      inventory_locations: {
+        Row: {
+          id: string
+          name: string
+          type: string
+          store_id: string | null
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          type: string
+          store_id?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          type?: string
+          store_id?: string | null
+          is_active?: boolean
+          created_at?: string
         }
         Relationships: []
       }
