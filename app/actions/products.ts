@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import type { Json } from "@/lib/supabase/types";
 
 export async function toggleProductActive(id: string, isActive: boolean) {
   const supabase = await createClient();
@@ -54,6 +55,18 @@ export async function updateProduct(
     image_url: string | null;
     is_active: boolean;
     is_club_exclusive: boolean;
+    // Rich premium fields
+    short_promise?: string | null;
+    is_featured?: boolean;
+    is_best_seller?: boolean;
+    benefits?: Json | null;
+    nutrition_facts?: Json | null;
+    ingredients?: string | null;
+    allergens?: string[] | null;
+    how_to_use?: Json | null;
+    warnings?: string | null;
+    certifications?: string[] | null;
+    faq?: Json | null;
   }
 ) {
   const supabase = await createClient();

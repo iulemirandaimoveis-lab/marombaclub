@@ -16,6 +16,7 @@ import { slugify } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRichFields, ProductRichFields } from "@/components/admin/product-rich-fields";
 
 const schema = z.object({
   name: z.string().min(2, "Nome deve ter ao menos 2 caracteres"),
@@ -45,6 +46,7 @@ export default function AdminNewProductPage() {
   const [flavorInput, setFlavorInput] = useState("");
   const [sizeInput, setSizeInput] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [richFields, patchRich] = useRichFields();
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -120,6 +122,18 @@ export default function AdminNewProductPage() {
         sku: null,
         unit: null,
         nutritional_info: null,
+        // Rich premium fields
+        short_promise: richFields.short_promise.trim() || null,
+        is_featured: richFields.is_featured,
+        is_best_seller: richFields.is_best_seller,
+        benefits: richFields.benefits.length > 0 ? richFields.benefits : null,
+        nutrition_facts: Object.keys(richFields.nutrition_facts).length > 0 ? richFields.nutrition_facts : null,
+        ingredients: richFields.ingredients.trim() || null,
+        allergens: richFields.allergens.length > 0 ? richFields.allergens : null,
+        how_to_use: Object.keys(richFields.how_to_use).length > 0 ? richFields.how_to_use : null,
+        warnings: richFields.warnings.trim() || null,
+        certifications: richFields.certifications.length > 0 ? richFields.certifications : null,
+        faq: richFields.faq.length > 0 ? richFields.faq : null,
       });
 
       if (error) throw new Error(error.message);
@@ -379,6 +393,11 @@ export default function AdminNewProductPage() {
           </Card>
         </motion.div>
 
+        {/* Rich premium fields */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.34 }}>
+          <ProductRichFields state={richFields} patch={patchRich} />
+        </motion.div>
+
         <AnimatePresence>
           {submitState === "error" && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
@@ -392,7 +411,7 @@ export default function AdminNewProductPage() {
           )}
         </AnimatePresence>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.34 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.42 }}
           className="flex items-center gap-3 pb-8">
           <Button type="submit" disabled={submitState === "loading" || uploading} size="lg" className="min-w-[180px] shadow-neon">
             {submitState === "loading" ? <><Loader2 className="w-4 h-4 animate-spin" />Criando…</> : <><Package className="w-4 h-4" />Criar produto</>}

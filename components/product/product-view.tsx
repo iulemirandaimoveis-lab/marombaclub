@@ -13,6 +13,7 @@ import { ProductBenefits } from "./product-benefits";
 import { HowToUse } from "./how-to-use";
 import { ProductTrustBadges } from "./product-trust-badges";
 import { ProductFAQ } from "./product-faq";
+import { ProductVideoSection } from "./product-video-section";
 import { StickyProductCTA } from "./sticky-product-cta";
 import type { Product } from "@/lib/data/products";
 
@@ -232,6 +233,21 @@ export function ProductView({ product }: { product: Product }) {
                 <ProductBenefits benefits={product.benefits} />
               </motion.div>
             </div>
+          </div>
+        )}
+
+        {/* ── VIDEOS ───────────────────────────────────────────────── */}
+        {product.video_urls && product.video_urls.length > 0 && (
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-40px" }}
+              variants={fadeUp}
+              custom={0}
+            >
+              <ProductVideoSection videos={product.video_urls} />
+            </motion.div>
           </div>
         )}
 
