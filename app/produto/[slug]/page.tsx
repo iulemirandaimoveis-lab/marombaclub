@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getProduct, getProducts } from "@/lib/data/products";
 import { ProductView } from "@/components/product/product-view";
 
+export const revalidate = 0;
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
