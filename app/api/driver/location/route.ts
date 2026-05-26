@@ -12,13 +12,25 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
+
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Only drivers can update location
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || profile.role !== "entregador") {
+    return NextResponse.json({ error: "Forbidden: apenas entregadores podem atualizar localização" }, { status: 403 });
+  }
 
   const body = await req.json().catch(() => ({}));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
 
   const { latitude, longitude, speed, heading, delivery_id } = parsed.data;
@@ -31,7 +43,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (!driver) {
-    return NextResponse.json({ error: "Driver not found" }, { status: 404 });
+    return NextResponse.json({ error: "Entregador não encontrado" }, { status: 404 });
   }
 
   await supabase
@@ -47,7 +59,7 @@ export async function POST(req: NextRequest) {
   if (delivery_id) {
     const { data: delivery } = await supabase
       .from("deliveries")
-      .select("id")
+      .select("id, order_id")
       .eq("id", delivery_id)
       .eq("driver_id", driver.id)
       .single();
@@ -63,14 +75,16 @@ export async function POST(req: NextRequest) {
         event_type: "location_update",
       });
 
-      await supabase
-        .from("orders")
-        .update({
-          driver_lat: latitude,
-          driver_lng: longitude,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", (await supabase.from("deliveries").select("order_id").eq("id", delivery_id!).single()).data?.order_id ?? "");
+      if (delivery.order_id) {
+        await supabase
+          .from("orders")
+          .update({
+            driver_lat: latitude,
+            driver_lng: longitude,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", delivery.order_id);
+      }
     }
   }
 

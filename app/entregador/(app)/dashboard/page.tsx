@@ -22,8 +22,7 @@ export default async function EntregadorDashboardPage() {
     .eq("id", user.id)
     .single();
 
-  const driverRoles = ["entregador", "admin_global", "store_manager"];
-  if (!profile || !driverRoles.includes(profile.role)) {
+  if (!profile || profile.role !== "entregador") {
     redirect("/");
   }
 

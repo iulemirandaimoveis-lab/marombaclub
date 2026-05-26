@@ -30,10 +30,10 @@ function getSandboxCPF() {
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       items:order_items(quantity, unit_price_cents, product:products(name))
     `)
     .eq("id", order_id)
-    .eq("customer_id", session.user.id)
+    .eq("customer_id", user.id)
     .single() as { data: any; error: any };
 
   if (orderErr || !order) {
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
   const customerCpf = cpf ?? order.customer?.cpf ?? getSandboxCPF();
   const customerName = order.customer?.name ?? "Cliente MarombaClub";
-  const customerEmail = order.customer?.email ?? session.user.email ?? "";
+  const customerEmail = order.customer?.email ?? user.email ?? "";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://marombaclub.com.br";
   const webhookUrl = `${siteUrl}/api/webhooks/pagbank`;
 

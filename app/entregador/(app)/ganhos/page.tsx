@@ -14,6 +14,14 @@ export default async function GanhosPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/entregador/login");
 
+  // Get order IDs from deliveries handled by this driver
+  const { data: tracking } = await supabase
+    .from("delivery_tracking")
+    .select("order_id")
+    .eq("entregador_id", user.id);
+
+  const orderIds = (tracking ?? []).map((t) => t.order_id).filter(Boolean);
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const weekAgo = new Date(today);
@@ -21,11 +29,15 @@ export default async function GanhosPage() {
   const monthAgo = new Date(today);
   monthAgo.setMonth(today.getMonth() - 1);
 
-  const { data: delivered } = await supabase
-    .from("orders")
-    .select("id, total_cents, created_at")
-    .eq("status", "ENTREGUE")
-    .order("created_at", { ascending: false });
+  // Only delivered orders handled by this driver
+  const { data: delivered } = orderIds.length > 0
+    ? await supabase
+        .from("orders")
+        .select("id, total_cents, created_at")
+        .eq("status", "ENTREGUE")
+        .in("id", orderIds)
+        .order("created_at", { ascending: false })
+    : { data: [] };
 
   const allOrders = delivered ?? [];
   const todayOrders = allOrders.filter(o => new Date(o.created_at) >= today);

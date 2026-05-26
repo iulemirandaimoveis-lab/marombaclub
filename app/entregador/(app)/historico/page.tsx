@@ -12,15 +12,26 @@ export default async function HistoricoPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/entregador/login");
 
-  const { data: orders } = await supabase
-    .from("orders")
-    .select(`
-      id, status, total_cents, delivery_type, created_at,
-      customer:profiles!orders_customer_id_fkey(name)
-    `)
-    .in("status", ["ENTREGUE", "CANCELADO"])
-    .order("created_at", { ascending: false })
-    .limit(100);
+  // Only show orders handled by this driver
+  const { data: tracking } = await supabase
+    .from("delivery_tracking")
+    .select("order_id")
+    .eq("entregador_id", user.id);
+
+  const orderIds = (tracking ?? []).map((t) => t.order_id).filter(Boolean);
+
+  const { data: orders } = orderIds.length > 0
+    ? await supabase
+        .from("orders")
+        .select(`
+          id, status, total_cents, delivery_type, created_at,
+          customer:profiles!orders_customer_id_fkey(name)
+        `)
+        .in("status", ["ENTREGUE", "CANCELADO"])
+        .in("id", orderIds)
+        .order("created_at", { ascending: false })
+        .limit(100)
+    : { data: [] };
 
   return (
     <div className="max-w-lg mx-auto px-4 py-5">
