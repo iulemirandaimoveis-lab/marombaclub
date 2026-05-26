@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { Truck, MapPin, Package, Clock, CheckCircle } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { DeliveriesMap } from "@/components/admin/deliveries-map";
 
 export const metadata: Metadata = { title: "Admin — Entregas" };
 export const dynamic = "force-dynamic";
@@ -36,6 +37,24 @@ export default async function AdminEntregasPage() {
   const active = (orders ?? []).filter(o => !["ENTREGUE", "CANCELADO"].includes(o.status));
   const done = (orders ?? []).filter(o => o.status === "ENTREGUE");
 
+  // Build deliveries with coordinates from tracking data
+  const deliveriesWithCoords = (orders ?? []).flatMap((order: any) => {
+    const tracking = Array.isArray(order.tracking) ? order.tracking : [];
+    const latest = tracking.sort((a: any, b: any) =>
+      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    )[0];
+    if (!latest?.lat || !latest?.lng) return [];
+    const addr = order.delivery_address as any;
+    return [{
+      id: order.id,
+      status: order.status,
+      lat: latest.lat,
+      lng: latest.lng,
+      customerName: order.customer?.name,
+      address: addr?.address ? `${addr.address}${addr.city ? `, ${addr.city}` : ""}` : undefined,
+    }];
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -57,6 +76,11 @@ export default async function AdminEntregasPage() {
           </div>
         ))}
       </div>
+
+      {/* Live Map */}
+      {deliveriesWithCoords.length > 0 && (
+        <DeliveriesMap deliveries={deliveriesWithCoords} />
+      )}
 
       {/* Deliveries list */}
       <div className="bg-surface border border-border rounded-2xl overflow-hidden">

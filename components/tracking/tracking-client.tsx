@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Package, CheckCircle, Truck, Clock, Zap,
@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
+import { Map, MapMarker, MarkerContent, MarkerTooltip } from "@/components/ui/map";
 
 const STATUS_STEPS = [
   { key: "CRIADO", label: "Pedido criado", icon: Package },
@@ -73,11 +74,6 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
       : null
   );
   const [destPos, setDestPos] = useState<{ lat: number; lng: number } | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const mapRef = useRef<any>(null);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const driverMarkerRef = useRef<any>(null);
-  const destMarkerRef = useRef<any>(null);
   const supabase = createClient();
 
   // Geocode delivery address once
@@ -120,108 +116,6 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
     return () => { supabase.removeChannel(channel); };
   }, [order.id, supabase]);
 
-  // Initialize map when status is ENVIADO or ENTREGUE
-  useEffect(() => {
-    const shouldShowMap = order.status === "ENVIADO" || order.status === "ENTREGUE";
-    if (!mapContainerRef.current || mapLoaded || !shouldShowMap) return;
-
-    let L: any;
-    let map: any;
-
-    async function initMap() {
-      try {
-        L = (await import("leaflet")).default;
-        // @ts-expect-error leaflet css import
-        await import("leaflet/dist/leaflet.css");
-
-        if (!mapContainerRef.current) return;
-
-        const centerPos = driverPos ?? destPos ?? { lat: -15.793889, lng: -47.882778 };
-        map = L.map(mapContainerRef.current).setView([centerPos.lat, centerPos.lng], 15);
-        mapRef.current = map;
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; OpenStreetMap contributors",
-        }).addTo(map);
-
-        const driverIcon = L.divIcon({
-          className: "",
-          html: `<div style="width:40px;height:40px;background:#F59E0B;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(245,158,11,0.6)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3m-1 11H9a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="17" cy="18.5" r="1.5"/></svg>
-          </div>`,
-          iconSize: [40, 40],
-          iconAnchor: [20, 20],
-        });
-
-        const destIcon = L.divIcon({
-          className: "",
-          html: `<div style="display:flex;flex-direction:column;align-items:center">
-            <div style="width:36px;height:36px;background:#1F2937;border:3px solid #F59E0B;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.4)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#F59E0B" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            </div>
-            <div style="width:2px;height:8px;background:#F59E0B;margin-top:-2px"></div>
-          </div>`,
-          iconSize: [36, 44],
-          iconAnchor: [18, 44],
-        });
-
-        if (driverPos) {
-          driverMarkerRef.current = L.marker([driverPos.lat, driverPos.lng], { icon: driverIcon })
-            .addTo(map)
-            .bindPopup("<b>Entregador a caminho</b>")
-            .openPopup();
-        }
-
-        if (destPos) {
-          destMarkerRef.current = L.marker([destPos.lat, destPos.lng], { icon: destIcon })
-            .addTo(map)
-            .bindPopup("<b>Endereço de entrega</b>");
-
-          if (!driverPos) {
-            map.setView([destPos.lat, destPos.lng], 15);
-          }
-        }
-
-        if (driverPos && destPos) {
-          const bounds = L.latLngBounds([
-            [driverPos.lat, driverPos.lng],
-            [destPos.lat, destPos.lng],
-          ]);
-          map.fitBounds(bounds, { padding: [40, 40] });
-        }
-
-        setMapLoaded(true);
-      } catch {
-        // Map failed to load
-      }
-    }
-
-    initMap();
-
-    return () => {
-      if (map) map.remove();
-    };
-  }, [order.status, destPos]);
-
-  // Update driver marker position in real-time
-  useEffect(() => {
-    if (!mapRef.current || !driverPos) return;
-    if (driverMarkerRef.current) {
-      driverMarkerRef.current.setLatLng([driverPos.lat, driverPos.lng]);
-    }
-    if (destPos) {
-      const L = (window as any).L;
-      if (L) {
-        const bounds = L.latLngBounds([
-          [driverPos.lat, driverPos.lng],
-          [destPos.lat, destPos.lng],
-        ]);
-        mapRef.current.fitBounds(bounds, { padding: [40, 40] });
-      }
-    } else {
-      mapRef.current.setView([driverPos.lat, driverPos.lng], 15, { animate: true });
-    }
-  }, [driverPos]);
 
   const currentStep = getStepIndex(order.status);
   const isDelivering = order.status === "ENVIADO";
@@ -277,7 +171,42 @@ export function TrackingClient({ order: initialOrder }: { order: Order }) {
               </div>
 
               {driverPos || destPos ? (
-                <div ref={mapContainerRef} style={{ height: 300, width: "100%" }} />
+                <Map
+                  className="h-[300px] w-full"
+                  center={
+                    driverPos
+                      ? [driverPos.lng, driverPos.lat]
+                      : destPos
+                      ? [destPos.lng, destPos.lat]
+                      : [-47.882778, -15.793889]
+                  }
+                  zoom={14}
+                  styles={{
+                    light: "https://tiles.openfreemap.org/styles/bright",
+                    dark: "https://tiles.openfreemap.org/styles/dark",
+                  }}
+                >
+                  {driverPos && (
+                    <MapMarker longitude={driverPos.lng} latitude={driverPos.lat} offset={[0, 8]}>
+                      <MarkerContent>
+                        <div className="w-10 h-10 rounded-full bg-primary border-2 border-white flex items-center justify-center shadow-lg">
+                          <Truck className="w-5 h-5 text-background" />
+                        </div>
+                      </MarkerContent>
+                      <MarkerTooltip>Entregador a caminho</MarkerTooltip>
+                    </MapMarker>
+                  )}
+                  {destPos && (
+                    <MapMarker longitude={destPos.lng} latitude={destPos.lat}>
+                      <MarkerContent>
+                        <div className="w-9 h-9 rounded-full bg-background border-2 border-primary flex items-center justify-center shadow-lg">
+                          <MapPin className="w-4 h-4 text-primary" />
+                        </div>
+                      </MarkerContent>
+                      <MarkerTooltip>Endereço de entrega</MarkerTooltip>
+                    </MapMarker>
+                  )}
+                </Map>
               ) : (
                 <div className="h-[300px] flex flex-col items-center justify-center bg-surface gap-3">
                   <Navigation className="w-8 h-8 text-primary/40 animate-pulse" />

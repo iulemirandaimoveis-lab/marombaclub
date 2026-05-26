@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Package, MapPin, Phone, User, Navigation, Map, Zap, CheckCircle } from "lucide-react";
+import { Package, MapPin, Phone, User, Zap, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
+import { DeliveryMap } from "@/components/entregador/delivery-map";
 
 export const metadata: Metadata = { title: "Detalhes da Entrega" };
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ export default async function EntregaDetailPage({ params }: { params: Promise<{ 
     .from("orders")
     .select(`
       id, status, total_cents, delivery_type, delivery_address, created_at,
+      driver_lat, driver_lng,
       customer:profiles!orders_customer_id_fkey(name, phone, email),
       items:order_items(quantity, unit_price_cents, product:products(name, image_url))
     `)
@@ -89,16 +91,25 @@ export default async function EntregaDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      {/* Address */}
+      {/* Address + Map */}
       {addr && (
-        <div className="glass rounded-2xl border border-border p-4">
-          <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Endereço de entrega</p>
-          <div className="bg-surface rounded-xl p-3 border border-border mb-3">
-            <p className="text-sm text-foreground">{addr.address}</p>
-            {addr.complement && <p className="text-xs text-muted">{addr.complement}</p>}
-            {addr.city && <p className="text-xs text-muted">{addr.city}{addr.state ? `, ${addr.state}` : ""}</p>}
-            {addr.cep && <p className="text-xs text-muted">CEP: {addr.cep}</p>}
+        <div className="space-y-3">
+          <div className="glass rounded-2xl border border-border p-4">
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Endereço de entrega</p>
+            <div className="bg-surface rounded-xl p-3 border border-border">
+              <p className="text-sm text-foreground">{addr.address}</p>
+              {addr.complement && <p className="text-xs text-muted">{addr.complement}</p>}
+              {addr.city && <p className="text-xs text-muted">{addr.city}{addr.state ? `, ${addr.state}` : ""}</p>}
+              {addr.cep && <p className="text-xs text-muted">CEP: {addr.cep}</p>}
+            </div>
           </div>
+
+          <DeliveryMap
+            deliveryAddress={addr}
+            driverLat={(order as any).driver_lat}
+            driverLng={(order as any).driver_lng}
+          />
+
           {mapsUrl && (
             <a
               href={mapsUrl}
@@ -106,7 +117,7 @@ export default async function EntregaDetailPage({ params }: { params: Promise<{ 
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-sm text-blue-400 font-semibold hover:bg-blue-500/20 transition-colors"
             >
-              <Map className="w-4 h-4" />
+              <MapPin className="w-4 h-4" />
               Abrir no Google Maps
             </a>
           )}
