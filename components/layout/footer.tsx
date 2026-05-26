@@ -31,7 +31,7 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
-              <Image src="/logo.png" alt="Maromba Club" width={300} height={88} className="h-10 w-auto object-contain" />
+              <Image src="/logo.png" alt="Maromba Club" width={600} height={404} className="h-10 w-auto object-contain" />
             </Link>
             <p className="text-muted text-sm leading-relaxed max-w-xs">
               O clube onde cada compra vira evolução. Suplementos premium, fidelidade
