@@ -22,9 +22,8 @@ export default async function EntregadorDashboardPage() {
     .eq("id", user.id)
     .single();
 
-  const driverRoles = ["entregador", "admin_global", "store_manager"];
-  if (!profile || !driverRoles.includes(profile.role)) {
-    redirect("/");
+  if (!profile || profile.role !== "entregador") {
+    redirect("/entregador/login");
   }
 
   const { data: orders } = await supabase

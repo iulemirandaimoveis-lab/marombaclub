@@ -56,13 +56,34 @@ export function AuthForm({ mode, variant = "customer" }: { mode: "login" | "regi
           .eq("id", result.user!.id)
           .single() as { data: { role: string } | null };
         const adminRoles = ["admin_global", "store_manager", "seller", "financeiro", "estoque"];
-        const redirect = new URLSearchParams(window.location.search).get("redirect");
-        if (profile?.role === "entregador") {
-          window.location.href = redirect ?? "/entregador/dashboard";
-        } else if (profile && adminRoles.includes(profile.role)) {
-          window.location.href = redirect ?? "/admin";
+        const redirectParam = new URLSearchParams(window.location.search).get("redirect");
+
+        if (variant === "driver") {
+          if (profile?.role === "entregador") {
+            window.location.href = redirectParam ?? "/entregador/dashboard";
+          } else {
+            setError("Acesso negado. Esta área é exclusiva para entregadores.");
+            await import("@/lib/supabase/client").then(({ createClient: cc }) =>
+              cc().auth.signOut()
+            );
+          }
+        } else if (variant === "admin") {
+          if (profile && adminRoles.includes(profile.role)) {
+            window.location.href = redirectParam ?? "/admin";
+          } else {
+            setError("Acesso negado. Esta área é exclusiva para administradores.");
+            await import("@/lib/supabase/client").then(({ createClient: cc }) =>
+              cc().auth.signOut()
+            );
+          }
         } else {
-          window.location.href = redirect ?? "/";
+          if (profile?.role === "entregador") {
+            window.location.href = "/entregador/dashboard";
+          } else if (profile && adminRoles.includes(profile.role)) {
+            window.location.href = "/admin";
+          } else {
+            window.location.href = redirectParam ?? "/";
+          }
         }
       } else {
         const d = data as RegisterInput;
@@ -112,10 +133,20 @@ export function AuthForm({ mode, variant = "customer" }: { mode: "login" | "regi
               />
             </div>
             <h1 className="text-2xl font-black text-foreground">
-              {isLogin ? "Bem-vindo de volta" : "Criar conta grátis"}
+              {variant === "driver"
+                ? "Acesso Entregador"
+                : variant === "admin"
+                ? "Acesso Administrativo"
+                : isLogin
+                ? "Bem-vindo de volta"
+                : "Criar conta grátis"}
             </h1>
             <p className="text-muted text-sm mt-2">
-              {isLogin
+              {variant === "driver"
+                ? "Entre com suas credenciais de entregador"
+                : variant === "admin"
+                ? "Área restrita — administradores"
+                : isLogin
                 ? "Entre na sua conta Maromba Club"
                 : "Junte-se ao maior clube fitness do Brasil"}
             </p>

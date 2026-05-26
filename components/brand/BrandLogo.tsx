@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type BrandLogoVariant = "client" | "admin" | "driver" | "compact";
@@ -25,15 +24,15 @@ export function BrandLogo({ variant = "client", className }: BrandLogoProps) {
   if (variant === "driver") {
     return (
       <div className={cn("flex items-center gap-2", className)}>
-        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
-          <Truck className="w-4 h-4 text-background" />
-        </div>
-        <div>
-          <p className="text-sm font-black text-foreground leading-none">
-            MAROMBA<span className="text-primary">CLUB</span>
-          </p>
-          <p className="text-[10px] text-muted leading-none mt-0.5">Entregador</p>
-        </div>
+        <Image
+          src="/logo.png"
+          alt="Maromba Club"
+          width={600}
+          height={404}
+          className="h-8 w-auto object-contain"
+          priority
+        />
+        <span className="text-[10px] text-muted font-medium leading-none">Entregador</span>
       </div>
     );
   }

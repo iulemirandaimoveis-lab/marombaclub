@@ -1,31 +1,37 @@
-"use client";
-
 import type { ReactNode } from "react";
-import { useState } from "react";
-import { AdminSidebar, AdminMenuButton } from "@/components/admin/admin-sidebar";
-import { BrandLogo } from "@/components/brand/BrandLogo";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { AdminShell } from "@/components/admin/admin-shell";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+export const metadata: Metadata = {
+  title: {
+    default: "Admin — Maromba Club",
+    template: "%s | Admin",
+  },
+};
 
-  return (
-    <div className="min-h-screen bg-background flex">
-      <AdminSidebar
-        mobileOpen={mobileOpen}
-        onMobileClose={() => setMobileOpen(false)}
-      />
+const ADMIN_ROLES = ["admin_global", "store_manager", "seller", "financeiro", "estoque"];
 
-      <div className="flex-1 min-w-0 flex flex-col">
-        {/* Mobile top bar */}
-        <div className="lg:hidden flex items-center gap-3 h-14 px-4 border-b border-border bg-surface flex-shrink-0">
-          <AdminMenuButton onClick={() => setMobileOpen(true)} />
-          <BrandLogo variant="admin" />
-        </div>
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-        <div className="flex-1 overflow-auto">
-          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
-        </div>
-      </div>
-    </div>
-  );
+  if (!user) {
+    redirect("/admin/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    redirect("/admin/login");
+  }
+
+  return <AdminShell>{children}</AdminShell>;
 }
