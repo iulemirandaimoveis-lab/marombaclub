@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { Truck, MapPin, Package, Clock, CheckCircle } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { DeliveriesMap } from "@/components/admin/deliveries-map";
+import { DeliveriesMapSwitcher } from "@/components/admin/deliveries-map-switcher";
 
 export const metadata: Metadata = { title: "Admin — Entregas" };
 export const dynamic = "force-dynamic";
@@ -79,7 +79,7 @@ export default async function AdminEntregasPage() {
 
       {/* Live Map */}
       {deliveriesWithCoords.length > 0 && (
-        <DeliveriesMap deliveries={deliveriesWithCoords} />
+        <DeliveriesMapSwitcher deliveries={deliveriesWithCoords} />
       )}
 
       {/* Deliveries list */}

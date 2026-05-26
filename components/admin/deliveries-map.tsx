@@ -15,9 +15,10 @@ interface Delivery {
 
 interface Props {
   deliveries: Delivery[];
+  hideTitleBar?: boolean;
 }
 
-export function DeliveriesMap({ deliveries }: Props) {
+export function DeliveriesMap({ deliveries, hideTitleBar = false }: Props) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -33,20 +34,22 @@ export function DeliveriesMap({ deliveries }: Props) {
       : [-47.882778, -15.793889];
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-border">
-      <div className="px-4 py-2.5 bg-surface border-b border-border flex items-center justify-between">
-        <p className="text-sm font-bold text-foreground">Mapa de entregas</p>
-        <div className="flex items-center gap-4 text-xs text-muted">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary inline-block" />
-            Em rota ({active.length})
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block" />
-            Entregues ({done.length})
-          </span>
+    <div>
+      {!hideTitleBar && (
+        <div className="px-4 py-2.5 bg-surface border-b border-border flex items-center justify-between">
+          <p className="text-sm font-bold text-foreground">Mapa de entregas</p>
+          <div className="flex items-center gap-4 text-xs text-muted">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-primary inline-block" />
+              Em rota ({active.length})
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block" />
+              Entregues ({done.length})
+            </span>
+          </div>
         </div>
-      </div>
+      )}
       <Map
         className="h-[400px] w-full"
         center={center}
@@ -86,3 +89,4 @@ export function DeliveriesMap({ deliveries }: Props) {
     </div>
   );
 }
+
