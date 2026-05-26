@@ -9,20 +9,21 @@ export const dynamic = "force-dynamic";
 export default async function EntregadorDashboardPage() {
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     redirect("/entregador/login");
   }
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, name, role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
-  if (!profile || profile.role !== "entregador") {
+  const driverRoles = ["entregador", "admin_global", "store_manager"];
+  if (!profile || !driverRoles.includes(profile.role)) {
     redirect("/");
   }
 
