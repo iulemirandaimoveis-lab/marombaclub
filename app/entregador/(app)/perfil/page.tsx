@@ -8,13 +8,13 @@ export const dynamic = "force-dynamic";
 
 export default async function PerfilEntregadorPage() {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect("/entregador/login");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/entregador/login");
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, name, email, phone, created_at")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   if (!profile) redirect("/entregador/login");
@@ -22,7 +22,7 @@ export default async function PerfilEntregadorPage() {
   const { data: driverData } = await (supabase as any)
     .from("delivery_drivers")
     .select("vehicle_type, license_plate, status, rating")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .maybeSingle() as { data: { vehicle_type?: string; license_plate?: string; status?: string; rating?: number } | null };
 
   const { count: totalDeliveries } = await supabase

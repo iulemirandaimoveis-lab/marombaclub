@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 
 export default async function EntregasPage() {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect("/entregador/login");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/entregador/login");
 
   const { data: orders } = await supabase
     .from("orders")

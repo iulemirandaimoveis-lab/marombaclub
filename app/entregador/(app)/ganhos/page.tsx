@@ -11,8 +11,8 @@ const COMMISSION_RATE = 0.08;
 
 export default async function GanhosPage() {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect("/entregador/login");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/entregador/login");
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);

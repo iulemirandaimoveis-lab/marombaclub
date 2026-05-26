@@ -165,7 +165,7 @@ export function AdminSidebar({ mobileOpen, onMobileClose }: AdminSidebarProps) {
         <button
           onClick={async () => {
             await signOut();
-            window.location.href = "/";
+            window.location.href = "/admin/login";
           }}
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-danger hover:bg-danger/10 transition-all w-full",

@@ -7,7 +7,7 @@ import { signOut } from "@/lib/supabase/auth";
 export function DriverShellHeader() {
   async function handleLogout() {
     await signOut();
-    window.location.href = "/";
+    window.location.href = "/entregador/login";
   }
 
   return (

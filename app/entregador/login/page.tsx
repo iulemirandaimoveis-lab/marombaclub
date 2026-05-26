@@ -4,5 +4,5 @@ import { AuthForm } from "@/components/auth/auth-form";
 export const metadata: Metadata = { title: "Login — Entregador Maromba Club" };
 
 export default function EntregadorLoginPage() {
-  return <AuthForm mode="login" />;
+  return <AuthForm mode="login" variant="driver" />;
 }

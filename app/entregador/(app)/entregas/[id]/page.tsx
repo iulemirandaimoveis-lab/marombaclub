@@ -19,8 +19,8 @@ const STATUS_MAP: Record<string, { label: string; next?: string; nextLabel?: str
 export default async function EntregaDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect("/entregador/login");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/entregador/login");
 
   const { data: order } = await supabase
     .from("orders")

@@ -28,7 +28,7 @@ const registerSchema = loginSchema.extend({
 type LoginInput = z.infer<typeof loginSchema>;
 type RegisterInput = z.infer<typeof registerSchema>;
 
-export function AuthForm({ mode }: { mode: "login" | "register" }) {
+export function AuthForm({ mode, variant = "customer" }: { mode: "login" | "register"; variant?: "customer" | "driver" | "admin" }) {
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -188,7 +188,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
               </div>
             )}
 
-            {isLogin && (
+            {isLogin && variant === "customer" && (
               <div className="flex justify-end">
                 <Link href="/esqueceu-senha" className="text-xs text-primary hover:underline">
                   Esqueceu a senha?
@@ -213,15 +213,17 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted mt-6">
-            {isLogin ? "Não tem conta?" : "Já tem conta?"}{" "}
-            <Link
-              href={isLogin ? "/cadastro" : "/login"}
-              className="text-primary font-bold hover:underline"
-            >
-              {isLogin ? "Cadastre-se grátis" : "Entrar"}
-            </Link>
-          </p>
+          {variant === "customer" && (
+            <p className="text-center text-sm text-muted mt-6">
+              {isLogin ? "Não tem conta?" : "Já tem conta?"}{" "}
+              <Link
+                href={isLogin ? "/cadastro" : "/login"}
+                className="text-primary font-bold hover:underline"
+              >
+                {isLogin ? "Cadastre-se grátis" : "Entrar"}
+              </Link>
+            </p>
+          )}
         </div>
       </motion.div>
     </div>
