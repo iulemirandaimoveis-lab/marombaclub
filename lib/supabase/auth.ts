@@ -21,14 +21,12 @@ export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
 
-  // Query profile with the SAME authenticated client to avoid session loss
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", data.user.id)
-    .single();
+  // Use SECURITY DEFINER RPC to read the role — bypasses RLS and avoids
+  // auth.uid() timing issues that can occur right after signInWithPassword.
+  const { data: role } = await supabase.rpc("get_my_role");
 
-  return { ...data, profile: profile as { role: string } | null };
+  const profile = role ? { role: role as string } : null;
+  return { ...data, profile };
 }
 
 export async function signOut() {

@@ -123,6 +123,12 @@ export function Footer() {
             <Link href="/termos" className="text-muted text-sm hover:text-primary transition-colors">
               Termos
             </Link>
+            <Link href="/admin/login" className="text-muted/40 text-xs hover:text-muted/70 transition-colors">
+              Admin
+            </Link>
+            <Link href="/entregador/login" className="text-muted/40 text-xs hover:text-muted/70 transition-colors">
+              Entregador
+            </Link>
           </div>
         </div>
       </div>
