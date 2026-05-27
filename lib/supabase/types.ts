@@ -1505,6 +1505,7 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: never; Returns: boolean }
+      get_my_role: { Args: Record<PropertyKey, never>; Returns: string }
     }
     Enums: {
       [_ in never]: never
