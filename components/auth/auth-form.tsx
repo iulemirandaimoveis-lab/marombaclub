@@ -48,13 +48,7 @@ export function AuthForm({ mode, variant = "customer" }: { mode: "login" | "regi
     try {
       if (isLogin) {
         const result = await signIn(data.email, data.password);
-        const { createClient } = await import("@/lib/supabase/client");
-        const sb = createClient();
-        const { data: profile } = await sb
-          .from("profiles")
-          .select("role")
-          .eq("id", result.user!.id)
-          .single() as { data: { role: string } | null };
+        const profile = result.profile;
         const adminRoles = ["admin_global", "store_manager", "seller", "financeiro", "estoque"];
         const redirectParam = new URLSearchParams(window.location.search).get("redirect");
 

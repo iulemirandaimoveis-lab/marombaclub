@@ -20,7 +20,15 @@ export async function signIn(email: string, password: string) {
   const supabase = createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
-  return data;
+
+  // Query profile with the SAME authenticated client to avoid session loss
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+
+  return { ...data, profile: profile as { role: string } | null };
 }
 
 export async function signOut() {
