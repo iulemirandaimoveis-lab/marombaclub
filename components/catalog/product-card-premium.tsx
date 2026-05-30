@@ -69,12 +69,22 @@ export function ProductCardPremium({ product, index = 0 }: ProductCardPremiumPro
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+                className="object-contain transition-transform duration-500 group-hover:scale-[1.06] p-3"
                 onError={() => setImgError(true)}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Package className="w-12 h-12 text-muted/30 transition-transform duration-500 group-hover:scale-110" />
+              <div className="w-full h-full flex flex-col items-center justify-center gap-2 px-4">
+                {product.emoji ? (
+                  <span className="text-5xl transition-transform duration-500 group-hover:scale-110 select-none">{product.emoji}</span>
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl bg-primary/15 border border-primary/20 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                    <Package className="w-7 h-7 text-primary/50" />
+                  </div>
+                )}
+                <div className="text-center">
+                  <p className="text-[11px] font-bold text-primary/70 uppercase tracking-wide leading-none">{product.brand}</p>
+                  <p className="text-[10px] text-muted/60 mt-0.5 leading-tight line-clamp-2">{product.weight_volume}</p>
+                </div>
               </div>
             )}
 
