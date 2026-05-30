@@ -58,7 +58,7 @@ export function ProductImageGallery({ mainImage, gallery = [], productName }: Pr
                   alt={`${productName} — imagem ${active + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  className="object-contain p-4 transition-transform duration-500 group-hover:scale-[1.02]"
                   onError={() => setImgError((prev) => new Set(prev).add(active))}
                   priority={active === 0}
                 />
@@ -101,7 +101,7 @@ export function ProductImageGallery({ mainImage, gallery = [], productName }: Pr
                     <Package className="w-5 h-5 text-muted/40" />
                   </div>
                 ) : (
-                  <Image src={img} alt={`Thumbnail ${i + 1}`} width={64} height={64} className="object-cover w-full h-full"
+                  <Image src={img} alt={`Thumbnail ${i + 1}`} width={64} height={64} className="object-contain w-full h-full p-1"
                     onError={() => setImgError((prev) => new Set(prev).add(i))} />
                 )}
               </button>

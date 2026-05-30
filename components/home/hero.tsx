@@ -42,37 +42,33 @@ export function Hero() {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left */}
           <motion.div variants={container} initial="hidden" animate="show">
-            {/* Logo */}
-            <motion.div variants={item} className="mb-6">
+            {/* Logo — replaces the MAROMBA CLUB heading text */}
+            <motion.div variants={item} className="mb-5">
               <Image
                 src="/logo.png"
                 alt="Maromba Club"
                 width={600}
                 height={404}
-                className="h-20 sm:h-24 w-auto object-contain"
+                className="h-28 sm:h-36 lg:h-40 w-auto object-contain"
                 priority
               />
             </motion.div>
 
             {/* Badge */}
             <motion.div variants={item}>
-              <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/25 text-primary text-xs font-bold px-4 py-2 rounded-full mb-6">
+              <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/25 text-primary text-xs font-bold px-4 py-2 rounded-full mb-5">
                 <Zap className="w-3.5 h-3.5 fill-primary" />
                 O maior clube fitness do Brasil
               </span>
             </motion.div>
 
-            {/* Heading */}
+            {/* Tagline */}
             <motion.h1
               variants={item}
-              className="font-display leading-[0.9] tracking-wide mb-6"
+              className="font-sans font-semibold leading-tight tracking-normal mb-6 text-2xl sm:text-3xl lg:text-4xl"
             >
-              <span className="block text-foreground text-6xl sm:text-7xl lg:text-8xl">MAROMBA</span>
-              <span className="block gradient-text text-6xl sm:text-7xl lg:text-8xl">CLUB</span>
-              <span className="block text-foreground/80 text-2xl sm:text-3xl lg:text-4xl font-sans font-semibold mt-3 tracking-normal">
-                Compre. Pontue.{" "}
-                <span className="text-primary font-bold">Evolua.</span>
-              </span>
+              Compre. Pontue.{" "}
+              <span className="text-primary font-bold">Evolua.</span>
             </motion.h1>
 
             {/* Subtitle */}
