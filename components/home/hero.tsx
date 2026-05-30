@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Zap, Star, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -41,6 +42,18 @@ export function Hero() {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left */}
           <motion.div variants={container} initial="hidden" animate="show">
+            {/* Logo */}
+            <motion.div variants={item} className="mb-6">
+              <Image
+                src="/logo.png"
+                alt="Maromba Club"
+                width={600}
+                height={404}
+                className="h-20 sm:h-24 w-auto object-contain"
+                priority
+              />
+            </motion.div>
+
             {/* Badge */}
             <motion.div variants={item}>
               <span className="inline-flex items-center gap-2 bg-primary/10 border border-primary/25 text-primary text-xs font-bold px-4 py-2 rounded-full mb-6">
