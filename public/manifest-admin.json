@@ -1,13 +1,13 @@
 {
-  "id": "/",
-  "name": "Maromba Club",
-  "short_name": "MarombaClub",
-  "description": "O clube onde cada compra vira evolução",
-  "start_url": "/",
-  "scope": "/",
+  "id": "/admin",
+  "name": "Maromba Club — Admin",
+  "short_name": "MC Admin",
+  "description": "Painel administrativo do Maromba Club",
+  "start_url": "/admin",
+  "scope": "/admin",
   "display": "standalone",
   "background_color": "#0A0A0A",
-  "theme_color": "#F59E0B",
+  "theme_color": "#6366F1",
   "orientation": "portrait",
   "icons": [
     {
@@ -24,5 +24,5 @@
     }
   ],
   "screenshots": [],
-  "categories": ["shopping", "fitness"]
+  "categories": ["business", "productivity"]
 }
