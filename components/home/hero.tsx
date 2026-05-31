@@ -67,9 +67,7 @@ export function Hero() {
               variants={item}
               className="font-display leading-[0.9] tracking-wide mb-6"
             >
-              <span className="block text-foreground text-6xl sm:text-7xl lg:text-8xl">MAROMBA</span>
-              <span className="block gradient-text text-6xl sm:text-7xl lg:text-8xl">CLUB</span>
-              <span className="block text-foreground/80 text-2xl sm:text-3xl lg:text-4xl font-sans font-semibold mt-3 tracking-normal">
+              <span className="block text-foreground/80 text-2xl sm:text-3xl lg:text-4xl font-sans font-semibold tracking-normal">
                 Compre. Pontue.{" "}
                 <span className="text-primary font-bold">Evolua.</span>
               </span>
