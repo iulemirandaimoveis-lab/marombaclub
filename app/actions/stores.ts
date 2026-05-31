@@ -1,6 +1,6 @@
 "use server";
 
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export type StoreInput = {
@@ -33,7 +33,7 @@ function revalidateStores() {
 
 export async function createStore(input: StoreInput) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = (await createAdminClient()) as any;
+  const supabase = (await createClient()) as any;
   const { data, error } = await supabase
     .from("stores")
     .insert({ ...input, updated_at: new Date().toISOString() })
@@ -46,7 +46,7 @@ export async function createStore(input: StoreInput) {
 
 export async function updateStore(id: string, input: StoreInput) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = (await createAdminClient()) as any;
+  const supabase = (await createClient()) as any;
   const { data, error } = await supabase
     .from("stores")
     .update({ ...input, updated_at: new Date().toISOString() })
@@ -60,7 +60,7 @@ export async function updateStore(id: string, input: StoreInput) {
 
 export async function toggleStoreActive(id: string, isActive: boolean) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = (await createAdminClient()) as any;
+  const supabase = (await createClient()) as any;
   const { error } = await supabase
     .from("stores")
     .update({ is_active: isActive, updated_at: new Date().toISOString() })

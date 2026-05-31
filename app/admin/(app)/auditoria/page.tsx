@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Admin — Auditoria" };
 
@@ -29,7 +29,7 @@ type AuditLog = {
 
 async function getAuditLogs(): Promise<AuditLog[]> {
   try {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
       .from("audit_logs")
