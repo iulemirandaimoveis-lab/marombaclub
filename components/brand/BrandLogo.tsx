@@ -37,7 +37,7 @@ export function BrandLogo({ variant = "client", className }: BrandLogoProps) {
     );
   }
 
-  const sizeClass = variant === "client" ? "h-[60px]" : "h-8";
+  const sizeClass = variant === "client" ? "h-[72px]" : "h-8";
   const imgWidth = 600;
   const imgHeight = 404;
 
