@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Plus, Edit, X, CheckCircle, Loader2,
@@ -8,7 +9,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createClient } from "@/lib/supabase/client";
+import {
+  createPickupPoint,
+  updatePickupPoint,
+  togglePickupPointActive,
+} from "@/app/actions/pickup-points";
 
 type PickupPoint = {
   id: string;
@@ -44,15 +49,21 @@ const EMPTY_FORM = {
   active: true,
 };
 
-export function PickupPointsAdmin({ stores, points: initialPoints }: { stores: StoreOption[]; points: PickupPoint[] }) {
-  const [points, setPoints] = useState<PickupPoint[]>(initialPoints);
+export function PickupPointsAdmin({
+  stores,
+  points,
+}: {
+  stores: StoreOption[];
+  points: PickupPoint[];
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);
   const [editPoint, setEditPoint] = useState<PickupPoint | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const supabase = createClient();
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   function openNew() {
     setEditPoint(null);
@@ -83,15 +94,14 @@ export function PickupPointsAdmin({ stores, points: initialPoints }: { stores: S
     setShowForm(true);
   }
 
-  async function handleSave() {
+  function handleSave() {
     if (!form.name.trim() || !form.store_id) {
       setError("Nome e loja são obrigatórios.");
       return;
     }
-    setSaving(true);
     setError(null);
 
-    const data: any = {
+    const input = {
       store_id: form.store_id,
       name: form.name.trim(),
       address_line: form.address_line.trim() || null,
@@ -104,31 +114,39 @@ export function PickupPointsAdmin({ stores, points: initialPoints }: { stores: S
       longitude: form.longitude ? parseFloat(form.longitude) : null,
       instructions: form.instructions.trim() || null,
       active: form.active,
-      updated_at: new Date().toISOString(),
     };
 
-    try {
-      if (editPoint) {
-        const { error: err } = await (supabase as any).from("pickup_points").update(data).eq("id", editPoint.id);
-        if (err) throw err;
-        setPoints(prev => prev.map(p => p.id === editPoint.id ? { ...p, ...data } : p));
-      } else {
-        const { data: newPoint, error: err } = await (supabase as any).from("pickup_points").insert(data).select().single();
-        if (err) throw err;
-        setPoints(prev => [...prev, newPoint]);
+    startTransition(async () => {
+      try {
+        if (editPoint) {
+          await updatePickupPoint(editPoint.id, input);
+        } else {
+          await createPickupPoint(input);
+        }
+        setSuccess(true);
+        setTimeout(() => {
+          setShowForm(false);
+          setSuccess(false);
+          router.refresh();
+        }, 900);
+      } catch (e: any) {
+        setError(e.message ?? "Erro ao salvar ponto de retirada.");
       }
-      setSuccess(true);
-      setTimeout(() => { setShowForm(false); setSuccess(false); }, 1200);
-    } catch (e: any) {
-      setError(e.message ?? "Erro ao salvar ponto de retirada.");
-    } finally {
-      setSaving(false);
-    }
+    });
   }
 
-  async function toggleActive(p: PickupPoint) {
-    await (supabase as any).from("pickup_points").update({ active: !p.active }).eq("id", p.id);
-    setPoints(prev => prev.map(x => x.id === p.id ? { ...x, active: !x.active } : x));
+  function handleToggleActive(p: PickupPoint) {
+    setTogglingId(p.id);
+    startTransition(async () => {
+      try {
+        await togglePickupPointActive(p.id, !p.active);
+        router.refresh();
+      } catch {
+        // silently ignore
+      } finally {
+        setTogglingId(null);
+      }
+    });
   }
 
   const activeCount = points.filter(p => p.active).length;
@@ -173,72 +191,148 @@ export function PickupPointsAdmin({ stores, points: initialPoints }: { stores: S
             className="glass rounded-2xl border border-primary/30 p-5 space-y-4"
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-black text-foreground">{editPoint ? "Editar Ponto" : "Novo Ponto de Retirada"}</h2>
-              <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground">
+              <h2 className="font-black text-foreground">
+                {editPoint ? "Editar Ponto" : "Novo Ponto de Retirada"}
+              </h2>
+              <button
+                onClick={() => setShowForm(false)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Loja *</label>
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Loja *
+                </label>
                 <select
                   value={form.store_id}
                   onChange={e => setForm(f => ({ ...f, store_id: e.target.value }))}
                   className="w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary/50"
                 >
                   <option value="">Selecione a loja</option>
-                  {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  {stores.map(s => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Nome do Ponto *</label>
-                <Input placeholder="Ex: Ponto Centro" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} icon={<MapPin className="w-4 h-4" />} />
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Nome do Ponto *
+                </label>
+                <Input
+                  placeholder="Ex: Ponto Centro"
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  icon={<MapPin className="w-4 h-4" />}
+                />
               </div>
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Logradouro</label>
-                <Input placeholder="Rua, Av..." value={form.address_line} onChange={e => setForm(f => ({ ...f, address_line: e.target.value }))} />
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Logradouro
+                </label>
+                <Input
+                  placeholder="Rua, Av..."
+                  value={form.address_line}
+                  onChange={e => setForm(f => ({ ...f, address_line: e.target.value }))}
+                />
               </div>
               <div>
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Número</label>
-                <Input placeholder="123" value={form.address_number} onChange={e => setForm(f => ({ ...f, address_number: e.target.value }))} />
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Número
+                </label>
+                <Input
+                  placeholder="123"
+                  value={form.address_number}
+                  onChange={e => setForm(f => ({ ...f, address_number: e.target.value }))}
+                />
               </div>
               <div>
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Bairro</label>
-                <Input placeholder="Centro" value={form.district} onChange={e => setForm(f => ({ ...f, district: e.target.value }))} />
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Bairro
+                </label>
+                <Input
+                  placeholder="Centro"
+                  value={form.district}
+                  onChange={e => setForm(f => ({ ...f, district: e.target.value }))}
+                />
               </div>
               <div>
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Cidade</label>
-                <Input placeholder="São Paulo" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} />
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Cidade
+                </label>
+                <Input
+                  placeholder="São Paulo"
+                  value={form.city}
+                  onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+                />
               </div>
               <div>
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Estado</label>
-                <Input placeholder="SP" maxLength={2} value={form.state} onChange={e => setForm(f => ({ ...f, state: e.target.value.toUpperCase() }))} />
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Estado
+                </label>
+                <Input
+                  placeholder="SP"
+                  maxLength={2}
+                  value={form.state}
+                  onChange={e => setForm(f => ({ ...f, state: e.target.value.toUpperCase() }))}
+                />
               </div>
               <div>
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Latitude</label>
-                <Input placeholder="-23.5505" value={form.latitude} onChange={e => setForm(f => ({ ...f, latitude: e.target.value }))} icon={<Navigation className="w-4 h-4" />} />
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Latitude
+                </label>
+                <Input
+                  placeholder="-23.5505"
+                  value={form.latitude}
+                  onChange={e => setForm(f => ({ ...f, latitude: e.target.value }))}
+                  icon={<Navigation className="w-4 h-4" />}
+                />
               </div>
               <div>
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Longitude</label>
-                <Input placeholder="-46.6333" value={form.longitude} onChange={e => setForm(f => ({ ...f, longitude: e.target.value }))} />
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Longitude
+                </label>
+                <Input
+                  placeholder="-46.6333"
+                  value={form.longitude}
+                  onChange={e => setForm(f => ({ ...f, longitude: e.target.value }))}
+                />
               </div>
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">Instruções para retirada</label>
-                <Input placeholder="Ex: Retire no balcão, apresente o código do pedido." value={form.instructions} onChange={e => setForm(f => ({ ...f, instructions: e.target.value }))} />
+                <label className="text-xs font-semibold text-muted uppercase tracking-wider block mb-1.5">
+                  Instruções para retirada
+                </label>
+                <Input
+                  placeholder="Ex: Retire no balcão, apresente o código do pedido."
+                  value={form.instructions}
+                  onChange={e => setForm(f => ({ ...f, instructions: e.target.value }))}
+                />
               </div>
             </div>
 
             <AnimatePresence>
               {error && (
-                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="text-sm text-danger px-3 py-2 rounded-xl bg-danger/10 border border-danger/20">
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-sm text-danger px-3 py-2 rounded-xl bg-danger/10 border border-danger/20"
+                >
                   {error}
                 </motion.p>
               )}
               {success && (
-                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="text-sm text-primary px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 flex items-center gap-2">
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-sm text-primary px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 flex items-center gap-2"
+                >
                   <CheckCircle className="w-4 h-4" />
                   {editPoint ? "Atualizado!" : "Ponto criado!"}
                 </motion.p>
@@ -246,10 +340,22 @@ export function PickupPointsAdmin({ stores, points: initialPoints }: { stores: S
             </AnimatePresence>
 
             <div className="flex gap-2">
-              <Button onClick={handleSave} disabled={saving || success} size="md">
-                {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</> : <><CheckCircle className="w-4 h-4" /> Salvar</>}
+              <Button onClick={handleSave} disabled={isPending || success} size="md">
+                {isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    Salvar
+                  </>
+                )}
               </Button>
-              <Button variant="ghost" size="md" onClick={() => setShowForm(false)}>Cancelar</Button>
+              <Button variant="ghost" size="md" onClick={() => setShowForm(false)}>
+                Cancelar
+              </Button>
             </div>
           </motion.div>
         )}
@@ -259,7 +365,7 @@ export function PickupPointsAdmin({ stores, points: initialPoints }: { stores: S
         <div className="flex flex-col items-center justify-center py-20">
           <Package className="w-10 h-10 text-muted mb-3" />
           <p className="font-bold text-foreground">Nenhum ponto cadastrado</p>
-          <p className="text-sm text-muted mt-1">Clique em "Novo Ponto" para adicionar.</p>
+          <p className="text-sm text-muted mt-1">Clique em &ldquo;Novo Ponto&rdquo; para adicionar.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -279,7 +385,11 @@ export function PickupPointsAdmin({ stores, points: initialPoints }: { stores: S
                     {p.store?.name ?? "—"}
                   </p>
                 </div>
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${p.active ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"}`}>
+                <span
+                  className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                    p.active ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"
+                  }`}
+                >
                   {p.active ? "Ativo" : "Inativo"}
                 </span>
               </div>
@@ -287,7 +397,8 @@ export function PickupPointsAdmin({ stores, points: initialPoints }: { stores: S
               {p.address_line && (
                 <p className="text-xs text-muted flex items-start gap-1.5">
                   <MapPin className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                  {p.address_line}{p.address_number ? `, ${p.address_number}` : ""}
+                  {p.address_line}
+                  {p.address_number ? `, ${p.address_number}` : ""}
                   {p.city ? ` — ${p.city}/${p.state}` : ""}
                 </p>
               )}
@@ -297,11 +408,35 @@ export function PickupPointsAdmin({ stores, points: initialPoints }: { stores: S
               )}
 
               <div className="flex gap-2">
-                <button onClick={() => openEdit(p)} className="flex-1 py-1.5 text-xs font-semibold text-muted hover:text-foreground bg-surface hover:bg-white/10 rounded-lg border border-border transition-all flex items-center justify-center gap-1.5">
-                  <Edit className="w-3.5 h-3.5" /> Editar
+                <button
+                  onClick={() => openEdit(p)}
+                  className="flex-1 py-1.5 text-xs font-semibold text-muted hover:text-foreground bg-surface hover:bg-white/10 rounded-lg border border-border transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Edit className="w-3.5 h-3.5" />
+                  Editar
                 </button>
-                <button onClick={() => toggleActive(p)} className={`flex-1 py-1.5 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 ${p.active ? "text-danger bg-danger/5 border-danger/20 hover:bg-danger/10" : "text-primary bg-primary/5 border-primary/20 hover:bg-primary/10"}`}>
-                  {p.active ? <><ToggleRight className="w-3.5 h-3.5" /> Desativar</> : <><ToggleLeft className="w-3.5 h-3.5" /> Ativar</>}
+                <button
+                  onClick={() => handleToggleActive(p)}
+                  disabled={togglingId === p.id}
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg border transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 ${
+                    p.active
+                      ? "text-danger bg-danger/5 border-danger/20 hover:bg-danger/10"
+                      : "text-primary bg-primary/5 border-primary/20 hover:bg-primary/10"
+                  }`}
+                >
+                  {togglingId === p.id ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : p.active ? (
+                    <>
+                      <ToggleRight className="w-3.5 h-3.5" />
+                      Desativar
+                    </>
+                  ) : (
+                    <>
+                      <ToggleLeft className="w-3.5 h-3.5" />
+                      Ativar
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>
