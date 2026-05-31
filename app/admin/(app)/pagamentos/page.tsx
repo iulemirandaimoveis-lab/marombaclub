@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { PaymentsAdmin } from "@/components/admin/pages/payments-admin";
 
 export const metadata: Metadata = { title: "Admin — Pagamentos" };
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 async function getPayments() {
   try {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await (supabase as any)
       .from("payments")

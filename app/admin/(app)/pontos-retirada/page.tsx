@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { PickupPointsAdmin } from "@/components/admin/pages/pickup-points-admin";
 
 export const metadata: Metadata = { title: "Admin — Pontos de Retirada" };
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 async function getData() {
   try {
-    const supabase = await createAdminClient();
+    const supabase = await createClient();
     const [storesRes, pointsRes] = await Promise.all([
       supabase.from("stores").select("id, name").eq("is_active", true).order("name"),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

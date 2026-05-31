@@ -1,6 +1,6 @@
 "use server";
 
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export type PickupPointInput = {
@@ -24,7 +24,7 @@ function revalidatePoints() {
 }
 
 export async function createPickupPoint(input: PickupPointInput) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient();
   const { data, error } = await (supabase as any)
     .from("pickup_points")
     .insert({ ...input, updated_at: new Date().toISOString() })
@@ -40,7 +40,7 @@ export async function createPickupPoint(input: PickupPointInput) {
 }
 
 export async function updatePickupPoint(id: string, input: PickupPointInput) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient();
   const { data, error } = await (supabase as any)
     .from("pickup_points")
     .update({ ...input, updated_at: new Date().toISOString() })
@@ -57,7 +57,7 @@ export async function updatePickupPoint(id: string, input: PickupPointInput) {
 }
 
 export async function togglePickupPointActive(id: string, active: boolean) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient();
   const { error } = await (supabase as any)
     .from("pickup_points")
     .update({ active, updated_at: new Date().toISOString() })
