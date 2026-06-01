@@ -27,6 +27,7 @@ import {
   UserCheck,
   Settings,
   LogOut,
+  Bookmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -36,6 +37,7 @@ const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag },
   { href: "/admin/produtos", label: "Produtos", icon: Package },
+  { href: "/admin/marcas", label: "Marcas", icon: Bookmark },
   { href: "/admin/estoque", label: "Estoque", icon: Warehouse },
   { href: "/admin/lojas", label: "Lojas", icon: Store },
   { href: "/admin/pontos-retirada", label: "Pontos Retirada", icon: MapPin },

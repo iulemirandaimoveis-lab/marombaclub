@@ -58,6 +58,42 @@ export type Database = {
           },
         ]
       }
+      brands: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          logo_url: string | null
+          website_url: string | null
+          description: string | null
+          country: string | null
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          logo_url?: string | null
+          website_url?: string | null
+          description?: string | null
+          country?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          logo_url?: string | null
+          website_url?: string | null
+          description?: string | null
+          country?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           code: string
